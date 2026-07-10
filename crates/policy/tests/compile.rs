@@ -1,9 +1,10 @@
 //! Policy documents: parsing, rulebook ⊕ org merge, fail-closed validation.
 
 use rumble_ai_clearance_domain::{
-    CountryCode, Model, NeedProfile, Purpose, RuleId, Sensitivity, Task, Verdict, evaluate,
+    BenchDimension, CountryCode, Model, NeedProfile, Purpose, RankingSpec, RuleId, Sensitivity,
+    Task, Verdict, evaluate,
 };
-use rumble_ai_clearance_policy::{PolicyError, compile, parse_policy};
+use rumble_ai_clearance_policy::{PolicyError, compile, compile_ranking, parse_policy};
 
 const RULEBOOK: &str = r#"
 version: 1
@@ -204,6 +205,75 @@ rules:
         Verdict::Ineligible {
             violations: vec![RuleId::new("org.e")],
         }
+    );
+}
+
+#[test]
+fn jurisdiction_allow_list_parses_and_applies() {
+    let org_yaml = r#"
+version: 1
+rules:
+  - id: org.eu-or-selfhost
+    applies:
+      sensitivity_at_least: c2
+    constraint:
+      require_hosting_jurisdiction_in: [FR, DE]
+"#;
+    let empty_rulebook = parse_policy("version: 1\nrules: []\n").expect("empty rulebook");
+    let org = parse_policy(org_yaml).expect("org policy parses");
+    let policy = compile(&empty_rulebook, &org).expect("compiles");
+
+    let us_api_only = Model::new("openai/gpt-6", "openai")
+        .with_origin(CountryCode::new("US"))
+        .with_hosting(rumble_ai_clearance_domain::Hosting::api(
+            rumble_ai_clearance_domain::ApiKind::Provider,
+            CountryCode::new("US"),
+            CountryCode::new("US"),
+        ));
+    let need = NeedProfile::new(Task::GeneralChat, Purpose::PublicContent, Sensitivity::C2);
+
+    assert_eq!(
+        evaluate(&us_api_only, &policy, &need),
+        Verdict::Ineligible {
+            violations: vec![RuleId::new("org.eu-or-selfhost")],
+        }
+    );
+}
+
+#[test]
+fn ranking_section_maps_tasks_to_bench_dimensions() {
+    let rulebook_yaml = r#"
+version: 1
+ranking:
+  code_generation: [coding, intelligence]
+  general_chat: [intelligence]
+rules: []
+"#;
+    let org_yaml = r#"
+version: 1
+ranking:
+  general_chat: [multilingual]
+rules: []
+"#;
+    let rulebook = parse_policy(rulebook_yaml).expect("rulebook parses");
+    let org = parse_policy(org_yaml).expect("org policy parses");
+
+    let ranking = compile_ranking(&rulebook, &org);
+
+    // Rulebook default kept where the org says nothing…
+    assert_eq!(
+        ranking.spec_for(Task::CodeGeneration),
+        RankingSpec::new(vec![BenchDimension::Coding, BenchDimension::Intelligence])
+    );
+    // …org override wins where it speaks.
+    assert_eq!(
+        ranking.spec_for(Task::GeneralChat),
+        RankingSpec::new(vec![BenchDimension::Multilingual])
+    );
+    // Unmapped tasks fall back to Intelligence.
+    assert_eq!(
+        ranking.spec_for(Task::Writing),
+        RankingSpec::new(vec![BenchDimension::Intelligence])
     );
 }
 

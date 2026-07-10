@@ -63,7 +63,9 @@ fn check_model(constraint: &Constraint, model: &Model) -> Option<RuleCheck> {
             DataDimension::Bench(*dimension),
             |score| score >= threshold,
         )),
-        Constraint::DenyHostingJurisdiction(_) => None,
+        Constraint::DenyHostingJurisdiction(_) | Constraint::RequireHostingJurisdictionIn(_) => {
+            None
+        }
     }
 }
 
@@ -77,23 +79,37 @@ fn check_hosting(constraint: &Constraint, hosting: &Hosting) -> Option<RuleCheck
         | Constraint::RequireSelfHostable
         | Constraint::MinContextWindow(_)
         | Constraint::MinBench { .. } => None,
-        Constraint::DenyHostingJurisdiction(banned) => Some(match hosting {
-            // Nothing leaves the organisation: vacuously satisfied.
-            Hosting::SelfHosted => RuleCheck::Satisfied,
-            Hosting::Api {
-                jurisdiction: None, ..
-            } => RuleCheck::MissingData(DataDimension::HostingJurisdiction),
-            Hosting::Api {
-                jurisdiction: Some(jurisdiction),
-                ..
-            } => {
-                if banned.contains(jurisdiction) {
-                    RuleCheck::Violated
-                } else {
-                    RuleCheck::Satisfied
-                }
+        Constraint::DenyHostingJurisdiction(banned) => {
+            Some(check_jurisdiction(hosting, |j| !banned.contains(j)))
+        }
+        Constraint::RequireHostingJurisdictionIn(allowed) => {
+            Some(check_jurisdiction(hosting, |j| allowed.contains(j)))
+        }
+    }
+}
+
+/// Jurisdiction check shared by deny-list and allow-list constraints.
+/// Self-hosted paths are vacuously satisfied: nothing leaves the
+/// organisation. Unknown jurisdiction on an API path is missing data.
+fn check_jurisdiction(
+    hosting: &Hosting,
+    satisfied: impl Fn(&crate::model::CountryCode) -> bool,
+) -> RuleCheck {
+    match hosting {
+        Hosting::SelfHosted => RuleCheck::Satisfied,
+        Hosting::Api {
+            jurisdiction: None, ..
+        } => RuleCheck::MissingData(DataDimension::HostingJurisdiction),
+        Hosting::Api {
+            jurisdiction: Some(jurisdiction),
+            ..
+        } => {
+            if satisfied(jurisdiction) {
+                RuleCheck::Satisfied
+            } else {
+                RuleCheck::Violated
             }
-        }),
+        }
     }
 }
 

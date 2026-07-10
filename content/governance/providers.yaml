@@ -1,0 +1,215 @@
+# Curated governance data: model creators and their country of origin.
+#
+# `origin` is the country of the company's headquarters (ISO 3166-1 alpha-2),
+# used by deny_origin / origin-scoped rules. `aliases` list the Hugging Face
+# organisation handles the sync pipeline maps onto this provider. Every entry
+# cites its source. This file is the product's curated dataset: public,
+# versioned, reviewable — corrections welcome by PR.
+
+version: 1
+
+providers:
+  # --- United States -------------------------------------------------------
+  - id: anthropic
+    name: Anthropic
+    origin: US
+    source: "https://www.anthropic.com/company"
+  - id: openai
+    name: OpenAI
+    origin: US
+    source: "https://openai.com/about"
+    aliases: [openai]
+  - id: google
+    name: Google (Alphabet)
+    origin: US
+    source: "https://about.google/company-info/"
+    aliases: [google]
+  - id: meta
+    name: Meta
+    origin: US
+    source: "https://about.meta.com/company-info/"
+    aliases: [meta-llama]
+  - id: microsoft
+    name: Microsoft
+    origin: US
+    source: "https://www.microsoft.com/en-us/about"
+    aliases: [microsoft]
+  - id: amazon
+    name: Amazon (AWS)
+    origin: US
+    source: "https://www.aboutamazon.com/about-us"
+    aliases: [amazon]
+  - id: nvidia
+    name: NVIDIA
+    origin: US
+    source: "https://www.nvidia.com/en-us/about-nvidia/"
+    aliases: [nvidia]
+  - id: xai
+    name: xAI
+    origin: US
+    source: "https://x.ai/about"
+    aliases: [xai-org]
+  - id: ibm
+    name: IBM
+    origin: US
+    source: "https://www.ibm.com/about"
+    aliases: [ibm-granite]
+  - id: databricks
+    name: Databricks
+    origin: US
+    source: "https://www.databricks.com/company/about-us"
+    aliases: [databricks]
+  - id: snowflake
+    name: Snowflake
+    origin: US
+    source: "https://www.snowflake.com/en/company/overview/about-snowflake/"
+    aliases: [Snowflake]
+  - id: allenai
+    name: Allen Institute for AI
+    origin: US
+    source: "https://allenai.org/about"
+    aliases: [allenai]
+  - id: huggingface
+    name: Hugging Face
+    origin: US
+    source: "https://huggingface.co/huggingface"
+    aliases: [HuggingFaceTB]
+  - id: liquid
+    name: Liquid AI
+    origin: US
+    source: "https://www.liquid.ai/company"
+    aliases: [LiquidAI]
+  - id: nous-research
+    name: Nous Research
+    origin: US
+    source: "https://nousresearch.com/"
+    aliases: [NousResearch]
+  - id: perplexity
+    name: Perplexity
+    origin: US
+    source: "https://www.perplexity.ai/hub/about"
+    aliases: [perplexity-ai]
+  - id: reka
+    name: Reka AI
+    origin: US
+    source: "https://www.reka.ai/about-us"
+    aliases: [RekaAI]
+
+  # --- Canada / Israel -----------------------------------------------------
+  - id: cohere
+    name: Cohere
+    origin: CA
+    source: "https://cohere.com/about"
+    aliases: [CohereLabs]
+  - id: ai21
+    name: AI21 Labs
+    origin: IL
+    source: "https://www.ai21.com/about/"
+    aliases: [ai21labs]
+
+  # --- European Union ------------------------------------------------------
+  - id: mistralai
+    name: Mistral AI
+    origin: FR
+    source: "https://mistral.ai/fr/company"
+    aliases: [mistralai]
+  - id: kyutai
+    name: Kyutai
+    origin: FR
+    source: "https://kyutai.org/"
+    aliases: [kyutai]
+  - id: lighton
+    name: LightOn
+    origin: FR
+    source: "https://www.lighton.ai/about"
+    aliases: [lightonai]
+  - id: aleph-alpha
+    name: Aleph Alpha
+    origin: DE
+    source: "https://aleph-alpha.com/company/"
+    aliases: [Aleph-Alpha]
+  # --- United Kingdom / Middle East ---------------------------------------
+  - id: tii
+    name: Technology Innovation Institute (Falcon)
+    origin: AE
+    source: "https://www.tii.ae/about"
+    aliases: [tiiuae]
+
+  # --- China ---------------------------------------------------------------
+  - id: deepseek
+    name: DeepSeek
+    origin: CN
+    source: "https://www.deepseek.com/"
+    aliases: [deepseek-ai]
+  - id: qwen
+    name: Alibaba (Qwen)
+    origin: CN
+    source: "https://www.alibabagroup.com/en-US/about-alibaba"
+    aliases: [Qwen]
+  - id: moonshotai
+    name: Moonshot AI (Kimi)
+    origin: CN
+    source: "https://www.moonshot.cn/"
+    aliases: [moonshotai]
+  - id: zhipu
+    name: Zhipu AI / Z.ai (GLM)
+    origin: CN
+    source: "https://www.zhipuai.cn/"
+    aliases: [zai-org, THUDM]
+  - id: 01-ai
+    name: 01.AI (Yi)
+    origin: CN
+    source: "https://www.01.ai/"
+    aliases: [01-ai]
+  - id: baidu
+    name: Baidu (ERNIE)
+    origin: CN
+    source: "https://ir.baidu.com/company-overview"
+    aliases: [baidu]
+  - id: tencent
+    name: Tencent (Hunyuan)
+    origin: CN
+    source: "https://www.tencent.com/en-us/about.html"
+    aliases: [tencent]
+  - id: bytedance
+    name: ByteDance (Doubao/Seed)
+    origin: CN
+    source: "https://www.bytedance.com/en/"
+    aliases: [ByteDance-Seed]
+  - id: minimax
+    name: MiniMax
+    origin: CN
+    source: "https://www.minimax.io/about"
+    aliases: [MiniMaxAI]
+  - id: stepfun
+    name: StepFun
+    origin: CN
+    source: "https://www.stepfun.com/"
+    aliases: [stepfun-ai]
+
+  # --- Korea / Japan / India ----------------------------------------------
+  - id: lg
+    name: LG AI Research (EXAONE)
+    origin: KR
+    source: "https://www.lgresearch.ai/about"
+    aliases: [LGAI-EXAONE]
+  - id: naver
+    name: NAVER (HyperCLOVA X)
+    origin: KR
+    source: "https://www.navercorp.com/en/naver/company"
+    aliases: [naver-hyperclovax]
+  - id: upstage
+    name: Upstage (Solar)
+    origin: KR
+    source: "https://www.upstage.ai/company"
+    aliases: [upstage]
+  - id: sakana
+    name: Sakana AI
+    origin: JP
+    source: "https://sakana.ai/about"
+    aliases: [SakanaAI]
+  - id: sarvam
+    name: Sarvam AI
+    origin: IN
+    source: "https://www.sarvam.ai/about"
+    aliases: [sarvamai]

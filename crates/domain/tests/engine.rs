@@ -95,6 +95,84 @@ fn unknown_jurisdiction_on_only_path_is_indeterminate() {
 }
 
 #[test]
+fn jurisdiction_allow_list_keeps_allowed_and_self_hosted_paths() {
+    // "C2 data: EU jurisdiction or self-host" — allow-list semantics.
+    let model = Model::new("mistralai/mistral-large-3", "mistralai")
+        .with_origin(CountryCode::new("FR"))
+        .with_hosting(Hosting::SelfHosted)
+        .with_hosting(Hosting::api(
+            ApiKind::EuSovereign,
+            CountryCode::new("FR"),
+            CountryCode::new("FR"),
+        ))
+        .with_hosting(Hosting::api(
+            ApiKind::Hyperscaler,
+            CountryCode::new("IE"),
+            CountryCode::new("US"),
+        ));
+    let policy = Policy::new(vec![Rule::always(
+        "rulebook.eu-or-selfhost",
+        Constraint::RequireHostingJurisdictionIn(vec![
+            CountryCode::new("FR"),
+            CountryCode::new("DE"),
+        ]),
+    )]);
+
+    let verdict = evaluate(&model, &policy, &any_need());
+
+    assert_eq!(
+        verdict,
+        Verdict::Eligible {
+            viable_hostings: vec![
+                Hosting::SelfHosted,
+                Hosting::api(
+                    ApiKind::EuSovereign,
+                    CountryCode::new("FR"),
+                    CountryCode::new("FR"),
+                ),
+            ],
+        }
+    );
+}
+
+#[test]
+fn empty_jurisdiction_allow_list_means_self_host_only() {
+    let policy = Policy::new(vec![Rule::always(
+        "rulebook.self-host-only",
+        Constraint::RequireHostingJurisdictionIn(vec![]),
+    )]);
+
+    let self_hostable = Model::new("meta/llama-4", "meta")
+        .with_origin(CountryCode::new("US"))
+        .with_hosting(Hosting::SelfHosted)
+        .with_hosting(Hosting::api(
+            ApiKind::Provider,
+            CountryCode::new("US"),
+            CountryCode::new("US"),
+        ));
+    assert_eq!(
+        evaluate(&self_hostable, &policy, &any_need()),
+        Verdict::Eligible {
+            viable_hostings: vec![Hosting::SelfHosted],
+        }
+    );
+
+    let api_only = Model::new("openai/gpt-6", "openai")
+        .with_origin(CountryCode::new("US"))
+        .with_hosting(Hosting::api(
+            ApiKind::Provider,
+            CountryCode::new("US"),
+            CountryCode::new("US"),
+        ));
+    assert_eq!(
+        evaluate(&api_only, &policy, &any_need()),
+        Verdict::Ineligible {
+            violations: vec![RuleId::new("rulebook.self-host-only")],
+        }
+    );
+}
+
+#[test]
 fn model_without_any_documented_hosting_path_is_indeterminate() {
     // Deny-by-default: no documented way to run the model is missing data,
     // never eligibility.

@@ -37,6 +37,10 @@ pub enum Constraint {
     DenyOrigin(Vec<CountryCode>),
     /// No inference data may flow under one of these jurisdictions.
     DenyHostingJurisdiction(Vec<CountryCode>),
+    /// Inference data may only flow under one of these jurisdictions.
+    /// Self-hosted paths satisfy this structurally; an empty list therefore
+    /// means "self-host only".
+    RequireHostingJurisdictionIn(Vec<CountryCode>),
     /// These providers are banned outright.
     DenyProvider(Vec<ProviderId>),
     /// The model's openness must be one of these.

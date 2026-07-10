@@ -4,11 +4,13 @@
 //! yields a complete effective policy or refuses to evaluate.
 #![forbid(unsafe_code)]
 
+use std::collections::BTreeMap;
+
 use serde::Deserialize;
 
 use rumble_ai_clearance_domain::{
-    BenchDimension, Constraint, CountryCode, Openness, Policy, ProviderId, Purpose, Rule,
-    Sensitivity, Task,
+    BenchDimension, Constraint, CountryCode, Openness, Policy, ProviderId, Purpose, RankingSpec,
+    Rule, Sensitivity, Task,
 };
 
 /// Why a policy document was refused. Fail-closed: any error means no
@@ -44,6 +46,10 @@ pub struct PolicyDoc {
     disable_rules: Vec<DisableDoc>,
     #[serde(default)]
     rules: Vec<RuleDoc>,
+    /// Preference ordering per task (never eligibility). Org entries
+    /// override rulebook entries task by task.
+    #[serde(default)]
+    ranking: BTreeMap<TaskDoc, Vec<BenchDimensionDoc>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -123,7 +129,7 @@ impl From<PurposeDoc> for Purpose {
     }
 }
 
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum TaskDoc {
     CodeGeneration,
@@ -196,6 +202,7 @@ impl From<BenchDimensionDoc> for BenchDimension {
 enum ConstraintDoc {
     DenyOrigin(Vec<String>),
     DenyHostingJurisdiction(Vec<String>),
+    RequireHostingJurisdictionIn(Vec<String>),
     DenyProvider(Vec<String>),
     RequireOpenness(Vec<OpennessDoc>),
     RequireSelfHostable(bool),
@@ -269,6 +276,45 @@ fn build_rule(doc: &RuleDoc) -> Result<Rule, PolicyError> {
     Ok(rule)
 }
 
+/// Per-task preference ordering compiled from rulebook ⊕ org.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RankingConfig {
+    specs: Vec<(Task, Vec<BenchDimension>)>,
+}
+
+impl RankingConfig {
+    /// Ranking dimensions for a task; tasks nobody mapped fall back to the
+    /// Intelligence index.
+    pub fn spec_for(&self, task: Task) -> RankingSpec {
+        let dimensions = self
+            .specs
+            .iter()
+            .find(|(mapped, _)| *mapped == task)
+            .map(|(_, dimensions)| dimensions.clone())
+            .unwrap_or_else(|| vec![BenchDimension::Intelligence]);
+        RankingSpec::new(dimensions)
+    }
+}
+
+/// Merge ranking sections: rulebook defaults, org overrides task by task.
+pub fn compile_ranking(rulebook: &PolicyDoc, org: &PolicyDoc) -> RankingConfig {
+    let mut merged: BTreeMap<TaskDoc, Vec<BenchDimensionDoc>> = rulebook.ranking.clone();
+    for (task, dimensions) in &org.ranking {
+        merged.insert(*task, dimensions.clone());
+    }
+    RankingConfig {
+        specs: merged
+            .into_iter()
+            .map(|(task, dimensions)| {
+                (
+                    task.into(),
+                    dimensions.into_iter().map(Into::into).collect(),
+                )
+            })
+            .collect(),
+    }
+}
+
 fn build_constraint(doc: &RuleDoc) -> Result<Constraint, PolicyError> {
     let constraint = match &doc.constraint {
         ConstraintDoc::DenyOrigin(countries) => {
@@ -276,6 +322,11 @@ fn build_constraint(doc: &RuleDoc) -> Result<Constraint, PolicyError> {
         }
         ConstraintDoc::DenyHostingJurisdiction(countries) => {
             Constraint::DenyHostingJurisdiction(countries.iter().map(CountryCode::new).collect())
+        }
+        ConstraintDoc::RequireHostingJurisdictionIn(countries) => {
+            Constraint::RequireHostingJurisdictionIn(
+                countries.iter().map(CountryCode::new).collect(),
+            )
         }
         ConstraintDoc::DenyProvider(providers) => {
             Constraint::DenyProvider(providers.iter().map(ProviderId::new).collect())

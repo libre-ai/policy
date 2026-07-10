@@ -28,6 +28,25 @@
         }
       }
     },
+    "ranking": {
+      "type": "object",
+      "description": "Preference ordering per task (never eligibility). Org entries override rulebook entries task by task; unmapped tasks fall back to the intelligence index.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(code_generation|agentic|summary_extraction|classification|writing|translation|reasoning|general_chat)$": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "intelligence",
+              "coding",
+              "agentic",
+              "math",
+              "multilingual"
+            ]
+          }
+        }
+      }
+    },
     "rules": {
       "type": "array",
       "items": {
@@ -108,6 +127,11 @@
                 "type": "array",
                 "items": { "$ref": "#/$defs/country" },
                 "description": "No inference data may flow under one of these jurisdictions. Self-hosted paths satisfy this structurally."
+              },
+              "require_hosting_jurisdiction_in": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/country" },
+                "description": "Inference data may only flow under one of these jurisdictions. Self-hosted paths satisfy this structurally; an empty list means self-host only."
               },
               "deny_provider": {
                 "type": "array",
