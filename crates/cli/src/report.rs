@@ -45,7 +45,7 @@ pub fn hosting_labels(hostings: &[Hosting]) -> Vec<String> {
                     ApiKind::Hyperscaler => "hyperscaler-api",
                 };
                 match jurisdiction {
-                    Some(country) => format!("{kind}({country:?})"),
+                    Some(country) => format!("{kind}({country})"),
                     None => format!("{kind}(jurisdiction unknown)"),
                 }
             }
@@ -66,14 +66,14 @@ pub fn verdict_lines(verdict: &Verdict) -> Vec<String> {
         Verdict::Ineligible { violations } => {
             let mut lines = vec!["verdict: INELIGIBLE".to_string()];
             for rule in violations {
-                lines.push(format!("  violates: {rule:?}"));
+                lines.push(format!("  violates: {rule}"));
             }
             lines
         }
         Verdict::Indeterminate { missing } => {
             let mut lines = vec!["verdict: INDETERMINATE (missing data, fail-closed)".to_string()];
             for (rule, dimension) in missing {
-                lines.push(format!("  missing: {dimension:?} (required by {rule:?})"));
+                lines.push(format!("  missing: {dimension:?} (required by {rule})"));
             }
             lines
         }

@@ -55,7 +55,7 @@ pub fn hosting_label(hosting: &Hosting) -> String {
                 ApiKind::Hyperscaler => "hyperscaler-api",
             };
             match jurisdiction {
-                Some(country) => format!("{kind} ({country:?})"),
+                Some(country) => format!("{kind} ({country})"),
                 None => format!("{kind} (jurisdiction unknown)"),
             }
         }
@@ -73,14 +73,14 @@ pub fn verdict_lines(verdict: &Verdict) -> Vec<String> {
             )
             .collect(),
         Verdict::Ineligible { violations } => std::iter::once("INELIGIBLE".to_string())
-            .chain(violations.iter().map(|rule| format!("violates: {rule:?}")))
+            .chain(violations.iter().map(|rule| format!("violates: {rule}")))
             .collect(),
         Verdict::Indeterminate { missing } => {
             std::iter::once("INDETERMINATE (missing data, fail-closed)".to_string())
                 .chain(
                     missing
                         .iter()
-                        .map(|(rule, dim)| format!("missing: {dim:?} (required by {rule:?})")),
+                        .map(|(rule, dim)| format!("missing: {dim:?} (required by {rule})")),
                 )
                 .collect()
         }
@@ -407,6 +407,10 @@ pub fn App() -> Element {
                                     td { "{row.model}" }
                                     td { {row.hostings.join(", ")} }
                                     td {
+                                        // Local mode only: explaining against
+                                        // the local snapshot while the list
+                                        // came from the API would lie.
+                                        if !server_mode() {
                                         button {
                                             onclick: {
                                                 let model = row.model.clone();
@@ -425,6 +429,7 @@ pub fn App() -> Element {
                                                 }
                                             },
                                             "explain"
+                                        }
                                         }
                                     }
                                 }

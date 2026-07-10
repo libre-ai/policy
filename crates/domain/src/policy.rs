@@ -26,6 +26,12 @@ impl RuleId {
     }
 }
 
+impl std::fmt::Display for RuleId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
 /// A single checkable constraint on a model.
 ///
 /// Model-scoped constraints disqualify the model itself; hosting-scoped
