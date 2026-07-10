@@ -19,13 +19,20 @@ struct Args {
     /// deliberate choice, never ours.
     #[arg(long, default_value = "127.0.0.1:8080")]
     addr: String,
+    /// Opt-in CORS for exactly one origin (web UI server mode on another
+    /// host). No header is sent when unset.
+    #[arg(long)]
+    cors_allow_origin: Option<String>,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let state = rumble_ai_clearance_api::load_state(&args.rulebook, &args.policy, &args.snapshot)?;
-    let router = rumble_ai_clearance_api::build_router(state);
+    let router = rumble_ai_clearance_api::build_router_with_cors(
+        state,
+        args.cors_allow_origin.as_deref(),
+    )?;
 
     let listener = tokio::net::TcpListener::bind(&args.addr).await?;
     println!("clearance-api listening on {}", args.addr);

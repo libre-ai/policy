@@ -6,7 +6,7 @@ use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
 use tower::ServiceExt;
 
-use rumble_ai_clearance_api::{AppState, build_router};
+use rumble_ai_clearance_api::{AppState, build_router, build_router_with_cors};
 use rumble_ai_clearance_dataset::parse_governance;
 use rumble_ai_clearance_policy::{compile, compile_ranking, parse_policy};
 use rumble_ai_clearance_sync::{
@@ -178,4 +178,44 @@ async fn policy_endpoint_lists_effective_rules() {
     let text = body["data"].to_string();
     assert!(text.contains("org.no-us-cn-data-flow"), "got: {text}");
     assert!(text.contains("rulebook.c2-eu-jurisdiction-or-selfhost"));
+}
+
+#[tokio::test]
+async fn cors_is_opt_in_and_scoped_to_the_configured_origin() {
+    // Default: no CORS header at all — same-origin or reverse-proxy only.
+    let response = build_router(state())
+        .oneshot(
+            Request::get("/api/v1/dataset")
+                .header("origin", "https://intranet.example")
+                .body(Body::empty())
+                .expect("request"),
+        )
+        .await
+        .expect("response");
+    assert!(
+        response
+            .headers()
+            .get("access-control-allow-origin")
+            .is_none()
+    );
+
+    // Opt-in: the configured origin is echoed.
+    let router = build_router_with_cors(state(), Some("https://intranet.example"))
+        .expect("valid origin");
+    let response = router
+        .oneshot(
+            Request::get("/api/v1/dataset")
+                .header("origin", "https://intranet.example")
+                .body(Body::empty())
+                .expect("request"),
+        )
+        .await
+        .expect("response");
+    assert_eq!(
+        response
+            .headers()
+            .get("access-control-allow-origin")
+            .and_then(|value| value.to_str().ok()),
+        Some("https://intranet.example")
+    );
 }

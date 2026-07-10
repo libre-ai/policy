@@ -53,7 +53,8 @@ pub fn load_state(rulebook: &Path, policy: &Path, snapshot: &Path) -> anyhow::Re
     Ok(AppState::new(snapshot, effective, ranking))
 }
 
-/// The whole surface: five read-only routes.
+/// The whole surface: five read-only routes. No CORS header by default —
+/// same-origin or reverse-proxy deployments need none.
 pub fn build_router(state: AppState) -> Router {
     Router::new()
         .route("/api/v1/dataset", get(dataset))
@@ -62,6 +63,29 @@ pub fn build_router(state: AppState) -> Router {
         .route("/api/v1/verdicts", get(verdicts))
         .route("/api/v1/policy", get(policy_view))
         .with_state(state)
+}
+
+/// Same router with an opt-in CORS layer scoped to exactly one origin (for
+/// the web UI's server mode when it is served from another host). Never a
+/// wildcard: cross-origin exposure is a deliberate, named choice.
+pub fn build_router_with_cors(
+    state: AppState,
+    cors_allow_origin: Option<&str>,
+) -> anyhow::Result<Router> {
+    let router = build_router(state);
+    match cors_allow_origin {
+        None => Ok(router),
+        Some(origin) => {
+            let origin: axum::http::HeaderValue = origin
+                .parse()
+                .map_err(|_| anyhow::anyhow!("invalid CORS origin: {origin}"))?;
+            let cors = tower_http::cors::CorsLayer::new()
+                .allow_origin(origin)
+                .allow_methods([axum::http::Method::GET, axum::http::Method::POST])
+                .allow_headers([axum::http::header::CONTENT_TYPE]);
+            Ok(router.layer(cors))
+        }
+    }
 }
 
 fn envelope(data: serde_json::Value, meta: serde_json::Value) -> axum::Json<serde_json::Value> {
