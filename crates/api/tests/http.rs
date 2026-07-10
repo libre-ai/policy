@@ -123,6 +123,15 @@ async fn evaluations_endpoint_ranks_eligible_models() {
 
     let eligible = report["data"]["eligible"].as_array().expect("eligible");
     assert_eq!(eligible[0]["model"], "mistralai/mistral-large-3");
+    // Contract parity with the CLI and local mode: deployment paths included.
+    let hostings = eligible[0]["viable_hostings"]
+        .as_array()
+        .expect("viable_hostings[]");
+    assert!(!hostings.is_empty());
+    assert!(
+        hostings.contains(&serde_json::json!("self_hosted")),
+        "got: {hostings:?}"
+    );
     assert_eq!(report["data"]["ineligible_count"], 1);
     assert_eq!(report["data"]["indeterminate_count"], 1);
     assert_eq!(
@@ -200,8 +209,8 @@ async fn cors_is_opt_in_and_scoped_to_the_configured_origin() {
     );
 
     // Opt-in: the configured origin is echoed.
-    let router = build_router_with_cors(state(), Some("https://intranet.example"))
-        .expect("valid origin");
+    let router =
+        build_router_with_cors(state(), Some("https://intranet.example")).expect("valid origin");
     let response = router
         .oneshot(
             Request::get("/api/v1/dataset")

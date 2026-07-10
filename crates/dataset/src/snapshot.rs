@@ -166,8 +166,8 @@ impl Snapshot {
             ));
         }
 
-        let mut seen: Vec<&str> = Vec::new();
-        let source_ids: Vec<&str> = self
+        let mut seen: std::collections::HashSet<&str> = std::collections::HashSet::new();
+        let source_ids: std::collections::HashSet<&str> = self
             .manifest
             .sources
             .iter()
@@ -176,10 +176,9 @@ impl Snapshot {
 
         for entry in &self.entries {
             let id = entry.model.id();
-            if seen.contains(&id) {
+            if !seen.insert(id) {
                 return Err(DatasetError::DuplicateModelId(id.to_string()));
             }
-            seen.push(id);
 
             for source in entry.provenance.referenced_sources() {
                 if !source_ids.contains(&source) {

@@ -140,8 +140,13 @@ pub fn evaluate(model: &Model, policy: &Policy, need: &NeedProfile) -> Verdict {
     }
 
     let mut viable_hostings = Vec::new();
+    // Order-preserving vectors for deterministic verdicts; the HashSets
+    // only guard against duplicate inserts.
     let mut hosting_blockers: Vec<RuleId> = Vec::new();
+    let mut seen_blockers: std::collections::HashSet<RuleId> = std::collections::HashSet::new();
     let mut hosting_missing: Vec<(RuleId, DataDimension)> = Vec::new();
+    let mut seen_missing: std::collections::HashSet<(RuleId, DataDimension)> =
+        std::collections::HashSet::new();
 
     for hosting in &model.hostings {
         let mut blocked = false;
@@ -151,15 +156,14 @@ pub fn evaluate(model: &Model, policy: &Policy, need: &NeedProfile) -> Verdict {
                 None | Some(RuleCheck::Satisfied) => {}
                 Some(RuleCheck::Violated) => {
                     blocked = true;
-                    if !hosting_blockers.contains(&rule.id) {
+                    if seen_blockers.insert(rule.id.clone()) {
                         hosting_blockers.push(rule.id.clone());
                     }
                 }
                 Some(RuleCheck::MissingData(dimension)) => {
                     unknown = true;
-                    let entry = (rule.id.clone(), dimension);
-                    if !hosting_missing.contains(&entry) {
-                        hosting_missing.push(entry);
+                    if seen_missing.insert((rule.id.clone(), dimension)) {
+                        hosting_missing.push((rule.id.clone(), dimension));
                     }
                 }
             }

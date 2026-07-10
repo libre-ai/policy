@@ -6,7 +6,7 @@ use crate::model::{BenchDimension, Hosting};
 use crate::policy::RuleId;
 
 /// A model data dimension a rule needed but the snapshot does not provide.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DataDimension {
     Origin,

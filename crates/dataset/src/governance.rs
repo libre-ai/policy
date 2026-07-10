@@ -64,10 +64,16 @@ impl Governance {
     }
 
     /// Resolve a Hugging Face organisation handle to its curated provider.
+    /// Case-insensitive (HF handles vary in casing), with the provider id
+    /// itself as fallback so alias-less providers still match.
     pub fn provider_for_alias(&self, alias: &str) -> Option<&ProviderInfo> {
-        self.providers
-            .iter()
-            .find(|provider| provider.aliases.iter().any(|known| known == alias))
+        self.providers.iter().find(|provider| {
+            provider
+                .aliases
+                .iter()
+                .any(|known| known.eq_ignore_ascii_case(alias))
+                || provider.id.eq_ignore_ascii_case(alias)
+        })
     }
 }
 
@@ -79,12 +85,11 @@ pub fn parse_governance(yaml: &str) -> Result<Governance, DatasetError> {
         return Err(DatasetError::UnsupportedGovernanceVersion(doc.version));
     }
 
-    let mut seen: Vec<&str> = Vec::new();
+    let mut seen: std::collections::HashSet<&str> = std::collections::HashSet::new();
     for provider in &doc.providers {
-        if seen.contains(&provider.id.as_str()) {
+        if !seen.insert(provider.id.as_str()) {
             return Err(DatasetError::DuplicateProviderId(provider.id.clone()));
         }
-        seen.push(&provider.id);
 
         let code_ok =
             provider.origin.len() == 2 && provider.origin.chars().all(|c| c.is_ascii_uppercase());

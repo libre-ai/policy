@@ -32,6 +32,11 @@ pub enum PolicyError {
     InvalidRule { id: String, message: String },
     #[error("a rulebook must not disable rules (disable_rules belongs to the org policy)")]
     RulebookDisablesRules,
+    #[error(
+        "ranking for task `{0}` has an empty dimension list; drop the entry instead \
+         (an empty list would silently degrade ranking to price only)"
+    )]
+    EmptyRankingDimensions(String),
 }
 
 /// A parsed policy document: either the default rulebook or an org policy.
@@ -219,6 +224,11 @@ pub fn parse_policy(yaml: &str) -> Result<PolicyDoc, PolicyError> {
     let doc = yaml_serde::from_str::<PolicyDoc>(yaml)?;
     if doc.version != 1 {
         return Err(PolicyError::UnsupportedVersion(doc.version));
+    }
+    for (task, dimensions) in &doc.ranking {
+        if dimensions.is_empty() {
+            return Err(PolicyError::EmptyRankingDimensions(format!("{task:?}")));
+        }
     }
     Ok(doc)
 }

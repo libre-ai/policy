@@ -136,13 +136,26 @@ async fn models(State(state): State<AppState>, Query(page): Query<Page>) -> impl
         serde_json::Value::Null
     };
 
+    // Serialization of Model cannot realistically fail, but hiding an error
+    // behind an empty page would be a silent degradation: fail loudly.
+    let data = match serde_json::to_value(&page_items) {
+        Ok(data) => data,
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                axum::Json(serde_json::json!({ "error": err.to_string() })),
+            )
+                .into_response();
+        }
+    };
     envelope(
-        serde_json::to_value(&page_items).unwrap_or_default(),
+        data,
         serde_json::json!({
             "next_cursor": next_cursor,
             "snapshot_generated_at": state.snapshot.manifest().generated_at(),
         }),
     )
+    .into_response()
 }
 
 async fn evaluations(
@@ -157,17 +170,25 @@ async fn evaluations(
     let mut indeterminate_count = 0usize;
     for model in &models {
         match engine_evaluate(model, &state.policy, &need) {
-            Verdict::Eligible { .. } => eligible.push(model),
+            Verdict::Eligible { viable_hostings } => eligible.push((model, viable_hostings)),
             Verdict::Ineligible { .. } => ineligible_count += 1,
             Verdict::Indeterminate { .. } => indeterminate_count += 1,
         }
     }
 
     let spec = state.ranking.spec_for(need.task());
-    let ranked = rank(&eligible, &spec);
+    let eligible_models: Vec<_> = eligible.iter().map(|(model, _)| *model).collect();
+    let ranked = rank(&eligible_models, &spec);
     let entries: Vec<_> = ranked
         .iter()
-        .map(|model| serde_json::json!({ "model": model.id() }))
+        .map(|model| {
+            let hostings = eligible
+                .iter()
+                .find(|(candidate, _)| candidate.id() == model.id())
+                .map(|(_, hostings)| hostings.clone())
+                .unwrap_or_default();
+            serde_json::json!({ "model": model.id(), "viable_hostings": hostings })
+        })
         .collect();
 
     envelope(

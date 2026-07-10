@@ -29,10 +29,8 @@ struct Args {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let state = rumble_ai_clearance_api::load_state(&args.rulebook, &args.policy, &args.snapshot)?;
-    let router = rumble_ai_clearance_api::build_router_with_cors(
-        state,
-        args.cors_allow_origin.as_deref(),
-    )?;
+    let router =
+        rumble_ai_clearance_api::build_router_with_cors(state, args.cors_allow_origin.as_deref())?;
 
     let listener = tokio::net::TcpListener::bind(&args.addr).await?;
     println!("clearance-api listening on {}", args.addr);

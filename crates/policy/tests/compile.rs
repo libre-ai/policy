@@ -312,3 +312,15 @@ fn need_profile_parses_from_yaml() {
 
     assert!(parse_need("task: nonsense\npurpose: public_content\nsensitivity: c0\n").is_err());
 }
+
+#[test]
+fn empty_ranking_dimension_list_is_rejected() {
+    // An empty list would silently degrade ranking to price-only: refuse it.
+    let yaml = r#"
+version: 1
+ranking:
+  code_generation: []
+rules: []
+"#;
+    assert!(parse_policy(yaml).is_err());
+}
