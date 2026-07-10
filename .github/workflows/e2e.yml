@@ -1,0 +1,35 @@
+name: e2e
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Web UI (wasm build + playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+      - uses: cargo-bins/cargo-binstall@main
+      # cargo install from source is ~30 min; binstall is seconds.
+      - name: Install dioxus-cli
+        run: cargo binstall --no-confirm dioxus-cli@0.7.9 --locked
+      - name: Build web app (wasm)
+        run: dx build --platform web --release
+        working-directory: apps/web
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Install playwright
+        run: npm ci && npx playwright install --with-deps
+      - name: Run e2e (chromium + firefox + webkit)
+        run: npx playwright test

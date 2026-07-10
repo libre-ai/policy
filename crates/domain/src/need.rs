@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Task the business user wants the model for (v1 taxonomy).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Task {
     CodeGeneration,
     Agentic,
@@ -17,6 +18,7 @@ pub enum Task {
 
 /// RGPD-aligned processing purpose.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Purpose {
     PublicContent,
     PersonalData,
@@ -27,6 +29,7 @@ pub enum Purpose {
 /// Data sensitivity level, C0 (public) to C3 (restricted). Ordered: a rule
 /// scoped to a level also applies to every level above it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Sensitivity {
     C0,
     C1,

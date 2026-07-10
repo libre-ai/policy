@@ -1,0 +1,156 @@
+{
+  "manifest": {
+    "schema_version": 1,
+    "generated_at": "2026-07-10T00:00:00Z",
+    "sources": [
+      {
+        "id": "hugging-face",
+        "kind": "hugging_face",
+        "fetched_at": "2026-07-10T00:00:00Z",
+        "note": "Illustrative demo catalogue — not a live sync. Benchmarks are absent by design: Artificial Analysis data is internal-use-only, run `clearance sync` with your own key."
+      },
+      {
+        "id": "curated-demo",
+        "kind": "curated",
+        "fetched_at": "2026-07-10T00:00:00Z"
+      }
+    ]
+  },
+  "entries": [
+    {
+      "model": {
+        "id": "mistralai/mistral-large",
+        "provider": "mistralai",
+        "origin": "FR",
+        "openness": "open_weight",
+        "self_hostable": true,
+        "context_window": 128000,
+        "hostings": [
+          "self_hosted",
+          {
+            "api": {
+              "kind": "eu_sovereign",
+              "country": "FR",
+              "jurisdiction": "FR"
+            }
+          }
+        ],
+        "bench": [],
+        "price": null
+      },
+      "provenance": {
+        "identity": "hugging-face",
+        "governance": "curated-demo",
+        "hosting": "curated-demo"
+      }
+    },
+    {
+      "model": {
+        "id": "meta/llama-3-3-70b",
+        "provider": "meta",
+        "origin": "US",
+        "openness": "open_weight",
+        "self_hostable": true,
+        "context_window": 128000,
+        "hostings": [
+          "self_hosted",
+          {
+            "api": {
+              "kind": "hyperscaler",
+              "country": "IE",
+              "jurisdiction": "US"
+            }
+          }
+        ],
+        "bench": [],
+        "price": null
+      },
+      "provenance": {
+        "identity": "hugging-face",
+        "governance": "curated-demo",
+        "hosting": "curated-demo"
+      }
+    },
+    {
+      "model": {
+        "id": "deepseek/deepseek-v3",
+        "provider": "deepseek",
+        "origin": "CN",
+        "openness": "open_source",
+        "self_hostable": true,
+        "context_window": 128000,
+        "hostings": [
+          "self_hosted",
+          {
+            "api": { "kind": "provider", "country": "CN", "jurisdiction": "CN" }
+          }
+        ],
+        "bench": [],
+        "price": null
+      },
+      "provenance": {
+        "identity": "hugging-face",
+        "governance": "curated-demo",
+        "hosting": "curated-demo"
+      }
+    },
+    {
+      "model": {
+        "id": "qwen/qwen2-5-72b",
+        "provider": "qwen",
+        "origin": "CN",
+        "openness": "open_weight",
+        "self_hostable": true,
+        "context_window": 131072,
+        "hostings": ["self_hosted"],
+        "bench": [],
+        "price": null
+      },
+      "provenance": { "identity": "hugging-face", "governance": "curated-demo" }
+    },
+    {
+      "model": {
+        "id": "openai/gpt-4o",
+        "provider": "openai",
+        "origin": "US",
+        "openness": "closed",
+        "self_hostable": false,
+        "context_window": 128000,
+        "hostings": [
+          {
+            "api": { "kind": "provider", "country": "US", "jurisdiction": "US" }
+          }
+        ],
+        "bench": [],
+        "price": null
+      },
+      "provenance": {
+        "identity": "curated-demo",
+        "governance": "curated-demo",
+        "hosting": "curated-demo"
+      }
+    },
+    {
+      "model": {
+        "id": "anthropic/claude-sonnet",
+        "provider": "anthropic",
+        "origin": "US",
+        "openness": "closed",
+        "self_hostable": false,
+        "context_window": 200000,
+        "hostings": [
+          {
+            "api": { "kind": "provider", "country": "US", "jurisdiction": "US" }
+          }
+        ],
+        "bench": [],
+        "price": null
+      },
+      "provenance": {
+        "identity": "curated-demo",
+        "governance": "curated-demo",
+        "hosting": "curated-demo"
+      }
+    }
+  ]
+}

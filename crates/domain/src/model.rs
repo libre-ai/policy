@@ -14,6 +14,7 @@ impl CountryCode {
 
 /// Kind of externally-operated inference API.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ApiKind {
     EuSovereign,
     Provider,
@@ -28,6 +29,7 @@ pub enum ApiKind {
 /// `jurisdiction` the legal regime it answers to — a US provider hosted in
 /// the EU still answers to US law (CLOUD Act), so the two may differ.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Hosting {
     SelfHosted,
     Api {
@@ -61,6 +63,7 @@ impl ProviderId {
 /// How open a model is. `OpenWeight` means downloadable weights under a
 /// possibly restrictive licence; `OpenSource` requires an OSI-approved one.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Openness {
     Closed,
     OpenWeight,
@@ -69,6 +72,7 @@ pub enum Openness {
 
 /// Benchmark dimension, mirroring the Artificial Analysis indices.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum BenchDimension {
     Intelligence,
     Coding,

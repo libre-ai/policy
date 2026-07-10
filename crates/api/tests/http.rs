@@ -155,7 +155,7 @@ async fn verdicts_endpoint_explains_and_denies_unknown_models() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(known["data"]["model"], "openai/gpt-6");
     let verdict = known["data"]["verdict"].to_string();
-    assert!(verdict.contains("Ineligible"), "got: {verdict}");
+    assert!(verdict.contains("ineligible"), "got: {verdict}");
 
     let (status, unknown) = get_json(
         "/api/v1/verdicts?model=acme/never-heard-of&task=code_generation&purpose=public_content&sensitivity=c0",

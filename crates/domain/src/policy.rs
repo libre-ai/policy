@@ -32,6 +32,7 @@ impl RuleId {
 /// constraints (`DenyHostingJurisdiction`) filter its deployment paths — the
 /// model stays eligible if at least one compliant path remains.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Constraint {
     /// The model creator's country must not be one of these.
     DenyOrigin(Vec<CountryCode>),
@@ -58,6 +59,7 @@ pub enum Constraint {
 
 /// When a rule is active, relative to the need profile.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Applicability {
     Always,
     SensitivityAtLeast(Sensitivity),
