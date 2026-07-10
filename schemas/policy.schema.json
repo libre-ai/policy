@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/constantin-jais/rumble-ai-clearance/schemas/policy.schema.json",
+  "title": "rumble-ai-clearance policy document",
+  "description": "A policy document: either the default rulebook shipped in content/rulebook/ or an organisation policy. The effective policy is rulebook rules minus traced deactivations plus org rules. Parsing is fail-closed: unknown fields are errors (source of truth: crates/policy).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version"],
+  "properties": {
+    "version": { "const": 1 },
+    "organization": {
+      "type": "string",
+      "description": "Display name of the organisation owning this policy."
+    },
+    "disable_rules": {
+      "type": "array",
+      "description": "Traced deactivations of rulebook rules. Org policies only.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "reason"],
+        "properties": {
+          "id": { "type": "string" },
+          "reason": {
+            "type": "string",
+            "description": "Mandatory: a deactivation is named and traced, never silent."
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "applies", "constraint"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable identifier, e.g. org.deny-origin-us-cn. Prefixes: rulebook. (shipped defaults), org. (organisation rules). builtin. is reserved by the engine."
+          },
+          "description": { "type": "string" },
+          "source": {
+            "type": "string",
+            "description": "Citation backing the rule (legal text, internal decision record)."
+          },
+          "applies": {
+            "description": "When the rule is active, relative to the need profile.",
+            "oneOf": [
+              { "const": "always" },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["sensitivity_at_least"],
+                "properties": {
+                  "sensitivity_at_least": { "enum": ["c0", "c1", "c2", "c3"] }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["purpose"],
+                "properties": {
+                  "purpose": {
+                    "enum": [
+                      "public_content",
+                      "personal_data",
+                      "automated_decision",
+                      "health_data"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["task"],
+                "properties": {
+                  "task": {
+                    "enum": [
+                      "code_generation",
+                      "agentic",
+                      "summary_extraction",
+                      "classification",
+                      "writing",
+                      "translation",
+                      "reasoning",
+                      "general_chat"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "constraint": {
+            "description": "Exactly one constraint per rule.",
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false,
+            "properties": {
+              "deny_origin": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/country" },
+                "description": "The model creator's country must not be one of these."
+              },
+              "deny_hosting_jurisdiction": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/country" },
+                "description": "No inference data may flow under one of these jurisdictions. Self-hosted paths satisfy this structurally."
+              },
+              "deny_provider": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "require_openness": {
+                "type": "array",
+                "items": { "enum": ["closed", "open_weight", "open_source"] }
+              },
+              "require_self_hostable": { "const": true },
+              "min_context_window": { "type": "integer", "minimum": 1 },
+              "min_bench": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["dimension", "threshold"],
+                "properties": {
+                  "dimension": {
+                    "enum": [
+                      "intelligence",
+                      "coding",
+                      "agentic",
+                      "math",
+                      "multilingual"
+                    ]
+                  },
+                  "threshold": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "country": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "ISO 3166-1 alpha-2 country code."
+    }
+  }
+}
