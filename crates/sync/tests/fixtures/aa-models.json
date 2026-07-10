@@ -1,0 +1,59 @@
+{
+  "tier": "free",
+  "intelligence_index_version": 4.1,
+  "data": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "slug": "mistral-large-3",
+      "name": "Mistral Large 3",
+      "model_creator": { "id": "aaaa", "name": "Mistral AI", "country": "fr" },
+      "evaluations": {
+        "artificial_analysis_intelligence_index": 44.2,
+        "artificial_analysis_coding_index": 39.1,
+        "artificial_analysis_agentic_index": 41.0,
+        "artificial_analysis_math_index": 52.3,
+        "artificial_analysis_multilingual_index": 48.7
+      },
+      "pricing": {
+        "price_1m_input_tokens": 2.0,
+        "price_1m_output_tokens": 6.0
+      },
+      "performance": { "median_output_tokens_per_second": 120.5 }
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "slug": "gpt-6",
+      "name": "GPT-6",
+      "model_creator": { "id": "bbbb", "name": "OpenAI", "country": "us" },
+      "evaluations": {
+        "artificial_analysis_intelligence_index": 61.9,
+        "artificial_analysis_coding_index": 55.4,
+        "artificial_analysis_agentic_index": 58.8,
+        "artificial_analysis_multilingual_index": 57.2
+      },
+      "pricing": {
+        "price_1m_input_tokens": 4.0,
+        "price_1m_output_tokens": 16.0
+      },
+      "performance": { "median_output_tokens_per_second": 95.0 }
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "slug": "frontier-x",
+      "name": "Frontier X",
+      "model_creator": {
+        "id": "cccc",
+        "name": "Unknown Frontier Labs",
+        "country": null
+      },
+      "evaluations": {
+        "artificial_analysis_intelligence_index": 30.0
+      },
+      "pricing": {
+        "price_1m_input_tokens": 1.0,
+        "price_1m_output_tokens": 3.0
+      },
+      "performance": {}
+    }
+  ]
+}
