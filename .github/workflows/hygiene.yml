@@ -1,0 +1,46 @@
+name: hygiene
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Required repository policy files
+        run: |
+          set -euo pipefail
+          test -s README.md
+          test -s LICENSE
+      - name: Secret pattern smoke
+        run: |
+          set -euo pipefail
+          if git grep -nEI '(AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN (RSA|DSA|EC|OPENSSH) PRIVATE KEY-----)' -- ':!Cargo.lock' ':!package-lock.json'; then
+            echo "::error::potential secret pattern found"
+            exit 1
+          fi
+      - name: No machine-local absolute paths
+        run: |
+          set -euo pipefail
+          # Pattern assembled to avoid matching this file itself.
+          pattern="/Use""rs/"
+          if git grep -nI "$pattern" -- ':!Cargo.lock' | grep -v 'allow-local-path'; then
+            echo "::error::machine-local absolute path found (annotate fixtures with allow-local-path)"
+            exit 1
+          fi
+      - name: No Artificial Analysis data committed
+        run: |
+          set -euo pipefail
+          # AA free tier is internal-use-only: org snapshots live in data/ (gitignored).
+          if git ls-files | grep -E '^data/'; then
+            echo "::error::data/ must never be committed (AA no-redistribution terms)"
+            exit 1
+          fi

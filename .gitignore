@@ -1,0 +1,17 @@
+# Build artifacts
+/target
+/dist
+
+# Local snapshots: Artificial Analysis data is "internal use only; no
+# redistribution" (free tier terms) — org-local snapshots must never be
+# committed. Enforced by the hygiene CI job as well.
+/data
+
+# Secrets and local environment
+.env
+.env.*
+
+# Playwright
+/node_modules
+/test-results
+/playwright-report

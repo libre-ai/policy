@@ -1,0 +1,24 @@
+[package]
+name = "rumble-ai-clearance-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "clearance"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+rumble-ai-clearance-dataset = { workspace = true }
+rumble-ai-clearance-domain = { workspace = true }
+rumble-ai-clearance-policy = { workspace = true }
+rumble-ai-clearance-sync = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
