@@ -4,7 +4,7 @@ use rumble_ai_clearance_domain::{
     BenchDimension, CountryCode, Model, NeedProfile, Purpose, RankingSpec, RuleId, Sensitivity,
     Task, Verdict, evaluate,
 };
-use rumble_ai_clearance_policy::{PolicyError, compile, compile_ranking, parse_policy};
+use rumble_ai_clearance_policy::{PolicyError, compile, compile_ranking, parse_need, parse_policy};
 
 const RULEBOOK: &str = r#"
 version: 1
@@ -294,4 +294,21 @@ rules:
         compile(&empty_rulebook, &org),
         Err(PolicyError::InvalidRule { .. })
     ));
+}
+
+#[test]
+fn need_profile_parses_from_yaml() {
+    let need = parse_need("task: summary_extraction\npurpose: personal_data\nsensitivity: c2\n")
+        .expect("need parses");
+
+    assert_eq!(
+        need,
+        NeedProfile::new(
+            Task::SummaryExtraction,
+            Purpose::PersonalData,
+            Sensitivity::C2
+        )
+    );
+
+    assert!(parse_need("task: nonsense\npurpose: public_content\nsensitivity: c0\n").is_err());
 }

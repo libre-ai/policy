@@ -15,6 +15,9 @@ allow = [
   "ISC",
   "Unicode-3.0",
   "Zlib",
+  # CDLA-Permissive-2.0: permissive data licence used by webpki-roots
+  # (Mozilla CA root bundle pulled by ureq/rustls). No copyleft.
+  "CDLA-Permissive-2.0",
 ]
 
 [bans]

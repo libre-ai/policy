@@ -276,6 +276,25 @@ fn build_rule(doc: &RuleDoc) -> Result<Rule, PolicyError> {
     Ok(rule)
 }
 
+/// A need profile file: what the business user wants to do.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct NeedDoc {
+    task: TaskDoc,
+    purpose: PurposeDoc,
+    sensitivity: SensitivityDoc,
+}
+
+/// Parse a need profile (task + purpose + sensitivity) from YAML.
+pub fn parse_need(yaml: &str) -> Result<rumble_ai_clearance_domain::NeedProfile, PolicyError> {
+    let doc: NeedDoc = yaml_serde::from_str(yaml)?;
+    Ok(rumble_ai_clearance_domain::NeedProfile::new(
+        doc.task.into(),
+        doc.purpose.into(),
+        doc.sensitivity.into(),
+    ))
+}
+
 /// Per-task preference ordering compiled from rulebook ⊕ org.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RankingConfig {

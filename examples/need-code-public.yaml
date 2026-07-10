@@ -1,0 +1,4 @@
+# Business need: code generation on public content, no sensitivity.
+task: code_generation
+purpose: public_content
+sensitivity: c0

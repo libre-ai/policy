@@ -50,4 +50,16 @@ impl NeedProfile {
             sensitivity,
         }
     }
+
+    pub fn task(&self) -> Task {
+        self.task
+    }
+
+    pub fn purpose(&self) -> Purpose {
+        self.purpose
+    }
+
+    pub fn sensitivity(&self) -> Sensitivity {
+        self.sensitivity
+    }
 }
