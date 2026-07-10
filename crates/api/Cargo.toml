@@ -7,8 +7,14 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "clearance-api"
+path = "src/main.rs"
+
 [dependencies]
+anyhow = { workspace = true }
 axum = { workspace = true }
+clap = { workspace = true }
 rumble-ai-clearance-dataset = { workspace = true }
 rumble-ai-clearance-domain = { workspace = true }
 rumble-ai-clearance-policy = { workspace = true }
@@ -18,4 +24,6 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 
 [dev-dependencies]
+http-body-util = { workspace = true }
+rumble-ai-clearance-sync = { workspace = true }
 tower = { workspace = true }

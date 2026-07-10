@@ -276,23 +276,30 @@ fn build_rule(doc: &RuleDoc) -> Result<Rule, PolicyError> {
     Ok(rule)
 }
 
-/// A need profile file: what the business user wants to do.
+/// A need profile input: what the business user wants to do. Deserializable
+/// from YAML (files) or JSON (API bodies) with the same strict taxonomy.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct NeedDoc {
+pub struct NeedInput {
     task: TaskDoc,
     purpose: PurposeDoc,
     sensitivity: SensitivityDoc,
 }
 
+impl NeedInput {
+    pub fn profile(&self) -> rumble_ai_clearance_domain::NeedProfile {
+        rumble_ai_clearance_domain::NeedProfile::new(
+            self.task.into(),
+            self.purpose.into(),
+            self.sensitivity.into(),
+        )
+    }
+}
+
 /// Parse a need profile (task + purpose + sensitivity) from YAML.
 pub fn parse_need(yaml: &str) -> Result<rumble_ai_clearance_domain::NeedProfile, PolicyError> {
-    let doc: NeedDoc = yaml_serde::from_str(yaml)?;
-    Ok(rumble_ai_clearance_domain::NeedProfile::new(
-        doc.task.into(),
-        doc.purpose.into(),
-        doc.sensitivity.into(),
-    ))
+    let doc: NeedInput = yaml_serde::from_str(yaml)?;
+    Ok(doc.profile())
 }
 
 /// Per-task preference ordering compiled from rulebook ⊕ org.

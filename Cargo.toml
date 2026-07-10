@@ -21,6 +21,7 @@ repository = "https://github.com/constantin-jais/rumble-ai-clearance"
 [workspace.dependencies]
 anyhow = "1"
 axum = "0.8"
+http-body-util = "0.1"
 clap = { version = "4", features = ["derive"] }
 dioxus = { version = "0.7", default-features = false, features = ["macro", "html", "signals"] }
 serde = { version = "1", features = ["derive"] }

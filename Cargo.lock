@@ -900,10 +900,14 @@ dependencies = [
 name = "rumble-ai-clearance-api"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
+ "clap",
+ "http-body-util",
  "rumble-ai-clearance-dataset",
  "rumble-ai-clearance-domain",
  "rumble-ai-clearance-policy",
+ "rumble-ai-clearance-sync",
  "serde",
  "serde_json",
  "thiserror",
