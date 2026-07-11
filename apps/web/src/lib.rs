@@ -163,6 +163,73 @@ pub fn explain_locally(
     Ok(verdict_lines(&verdict))
 }
 
+/// Normalize an API base URL before issuing a server-mode request.
+pub fn normalize_server_base_url(base_url: &str) -> Result<String, String> {
+    let normalized = base_url.trim().trim_end_matches('/');
+    if normalized.is_empty() {
+        return Err("API base URL is required in server mode".to_string());
+    }
+    if !normalized.starts_with("http://") && !normalized.starts_with("https://") {
+        return Err("API base URL must start with http:// or https://".to_string());
+    }
+    Ok(normalized.to_string())
+}
+
+/// Parse the API envelope strictly. Missing or mistyped fields fail closed
+/// instead of being silently coerced to empty lists or zero counters.
+pub fn parse_remote_outcome(value: &serde_json::Value) -> Result<Outcome, String> {
+    let data = value
+        .get("data")
+        .and_then(serde_json::Value::as_object)
+        .ok_or_else(|| "API response is missing the data object".to_string())?;
+    let entries = data
+        .get("eligible")
+        .and_then(serde_json::Value::as_array)
+        .ok_or_else(|| "API response has no eligible array".to_string())?;
+
+    let eligible = entries
+        .iter()
+        .enumerate()
+        .map(|(index, entry)| {
+            let model = entry
+                .get("model")
+                .and_then(serde_json::Value::as_str)
+                .ok_or_else(|| format!("eligible[{index}] has no model string"))?;
+            let hostings: Vec<Hosting> = serde_json::from_value(
+                entry
+                    .get("viable_hostings")
+                    .cloned()
+                    .ok_or_else(|| format!("eligible[{index}] has no viable_hostings"))?,
+            )
+            .map_err(|error| format!("eligible[{index}] has invalid viable_hostings: {error}"))?;
+            Ok(EligibleRow {
+                model: model.to_string(),
+                hostings: hostings.iter().map(hosting_label).collect(),
+            })
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+
+    let count = |name: &str| -> Result<usize, String> {
+        let value = data
+            .get(name)
+            .and_then(serde_json::Value::as_u64)
+            .ok_or_else(|| format!("API response has no valid {name}"))?;
+        usize::try_from(value).map_err(|_| format!("API response {name} exceeds this platform"))
+    };
+    let snapshot_version = value
+        .get("meta")
+        .and_then(|meta| meta.get("snapshot_generated_at"))
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| "API response has no snapshot_generated_at".to_string())?;
+
+    Ok(Outcome {
+        eligible,
+        ineligible_count: count("ineligible_count")?,
+        indeterminate_count: count("indeterminate_count")?,
+        snapshot_version: snapshot_version.to_string(),
+    })
+}
+
 /// Server-mode evaluation: POST /api/v1/evaluations on the org's API.
 /// Browser-only; the host/SSR build degrades with an explicit error.
 #[cfg(target_arch = "wasm32")]
@@ -172,6 +239,7 @@ pub async fn evaluate_remotely(
     purpose: &str,
     sensitivity: &str,
 ) -> Result<Outcome, String> {
+    let base_url = normalize_server_base_url(base_url)?;
     let body = serde_json::json!({
         "task": task,
         "purpose": purpose,
@@ -188,27 +256,7 @@ pub async fn evaluate_remotely(
         return Err(format!("API error: HTTP {}", response.status()));
     }
     let value: serde_json::Value = response.json().await.map_err(|e| e.to_string())?;
-    Ok(Outcome {
-        eligible: value["data"]["eligible"]
-            .as_array()
-            .map(|entries| {
-                entries
-                    .iter()
-                    .filter_map(|entry| entry["model"].as_str())
-                    .map(|model| EligibleRow {
-                        model: model.to_string(),
-                        hostings: Vec::new(),
-                    })
-                    .collect()
-            })
-            .unwrap_or_default(),
-        ineligible_count: value["data"]["ineligible_count"].as_u64().unwrap_or(0) as usize,
-        indeterminate_count: value["data"]["indeterminate_count"].as_u64().unwrap_or(0) as usize,
-        snapshot_version: value["meta"]["snapshot_generated_at"]
-            .as_str()
-            .unwrap_or("unknown")
-            .to_string(),
-    })
+    parse_remote_outcome(&value)
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -239,22 +287,25 @@ const PURPOSES: [&str; 4] = [
 ];
 const SENSITIVITIES: [&str; 4] = ["c0", "c1", "c2", "c3"];
 
-const STYLE: &str = r#"
-:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
-body { margin: 0; }
-main { max-width: 70rem; margin: 0 auto; padding: 1.5rem 1rem; }
-h1 { font-size: 1.5rem; }
-textarea { width: 100%; min-height: 10rem; font-family: monospace; font-size: 0.85rem; }
-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid color-mix(in srgb, currentColor 25%, transparent); }
-select { margin-right: 1rem; padding: 0.25rem; }
-button { padding: 0.5rem 1rem; cursor: pointer; }
-.error { color: #c0392b; }
-.banner { font-size: 0.85rem; opacity: 0.8; margin-top: 2rem; }
-.counts { margin-top: 0.75rem; font-size: 0.9rem; }
-details { margin-top: 0.5rem; }
-fieldset { border: 1px solid color-mix(in srgb, currentColor 25%, transparent); margin-top: 1rem; }
-"#;
+const FONTS_CSS: Asset = asset!(
+    "/assets/fonts/fonts.css",
+    AssetOptions::css().with_hash_suffix(false)
+);
+#[used]
+static INTER_FONT: Asset = asset!(
+    "/assets/fonts/inter-latin-wght-normal.woff2",
+    AssetOptions::builder().with_hash_suffix(false)
+);
+#[used]
+static DISPLAY_FONT: Asset = asset!(
+    "/assets/fonts/plus-jakarta-sans-latin-wght-normal.woff2",
+    AssetOptions::builder().with_hash_suffix(false)
+);
+const TOKENS_CSS: Asset = asset!("/assets/libre-ia/tokens.css");
+const THEMES_CSS: Asset = asset!("/assets/libre-ia/themes.css");
+const COMPONENTS_CSS: Asset = asset!("/assets/libre-ia/components.css");
+const CLEARANCE_CSS: Asset = asset!("/assets/clearance.css");
+const FAVICON: Asset = asset!("/assets/favicon.svg");
 
 /// The application shell (SSR-testable on the host).
 #[component]
@@ -307,15 +358,23 @@ pub fn App() -> Element {
     };
 
     rsx! {
-        style { {STYLE} }
-        main {
-            h1 { "rumble-ai-clearance" }
-            p {
+        document::Link { rel: "icon", r#type: "image/svg+xml", href: FAVICON }
+        document::Link { rel: "stylesheet", href: FONTS_CSS }
+        document::Link { rel: "stylesheet", href: TOKENS_CSS }
+        document::Link { rel: "stylesheet", href: THEMES_CSS }
+        document::Link { rel: "stylesheet", href: COMPONENTS_CSS }
+        document::Link { rel: "stylesheet", href: CLEARANCE_CSS }
+        main { class: "clearance-app",
+            header {
+                p { class: "clearance-kicker", "rumble-ai-clearance · Libre IA" }
+                h1 { "AI Clearance" }
+                p {
                 "Security clearance for AI models: match a business need against "
-                "your organisation's policy and get explainable, rule-by-rule verdicts."
+                    "your organisation's policy and get explainable, rule-by-rule verdicts."
+                }
             }
 
-            fieldset {
+            fieldset { class: "lia-card clearance-panel",
                 legend { "Data (local mode: nothing leaves this browser)" }
                 label {
                     input {
@@ -329,6 +388,7 @@ pub fn App() -> Element {
                     p {
                         "API base URL: "
                         input {
+                            class: "lia-input",
                             r#type: "url",
                             placeholder: "http://localhost:8080",
                             value: server_url(),
@@ -339,6 +399,7 @@ pub fn App() -> Element {
                     details {
                         summary { "Snapshot JSON (default: illustrative demo catalogue)" }
                         textarea {
+                            class: "lia-input",
                             value: snapshot_json(),
                             oninput: move |evt| snapshot_json.set(evt.value()),
                         }
@@ -346,6 +407,7 @@ pub fn App() -> Element {
                     details {
                         summary { "Org policy YAML (default: no US/CN data flow, self-host OK)" }
                         textarea {
+                            class: "lia-input",
                             value: policy_yaml(),
                             oninput: move |evt| policy_yaml.set(evt.value()),
                         }
@@ -353,9 +415,11 @@ pub fn App() -> Element {
                 }
             }
 
-            fieldset {
+            fieldset { class: "lia-card clearance-panel",
                 legend { "Business need" }
+                div { class: "clearance-selects",
                 select {
+                    class: "lia-input clearance-select",
                     aria_label: "task",
                     onchange: move |evt| task.set(evt.value()),
                     for option in TASKS {
@@ -363,6 +427,7 @@ pub fn App() -> Element {
                     }
                 }
                 select {
+                    class: "lia-input clearance-select",
                     aria_label: "purpose",
                     onchange: move |evt| purpose.set(evt.value()),
                     for option in PURPOSES {
@@ -370,27 +435,30 @@ pub fn App() -> Element {
                     }
                 }
                 select {
+                    class: "lia-input clearance-select",
                     aria_label: "sensitivity",
                     onchange: move |evt| sensitivity.set(evt.value()),
                     for option in SENSITIVITIES {
                         option { value: option, selected: sensitivity() == option, {option} }
                     }
                 }
-                button { onclick: run, "Evaluate" }
+                button { class: "lia-button lia-button--primary", onclick: run, "Evaluate" }
+                }
             }
 
             if !error().is_empty() {
-                p { class: "error", "{error}" }
+                p { class: "lia-alert clearance-error", role: "alert", "{error}" }
             }
 
             if let Some(result) = outcome() {
-                section {
+                section { class: "clearance-result",
                     h2 { "Eligible models" }
                     p { class: "counts",
                         "eligible: {result.eligible.len()} · ineligible: {result.ineligible_count} · "
                         "indeterminate (fail-closed): {result.indeterminate_count} · "
                         "snapshot: {result.snapshot_version}"
                     }
+                    div { class: "clearance-table-wrap",
                     table {
                         thead {
                             tr {
@@ -412,6 +480,7 @@ pub fn App() -> Element {
                                         // came from the API would lie.
                                         if !server_mode() {
                                         button {
+                                            class: "lia-button",
                                             onclick: {
                                                 let model = row.model.clone();
                                                 move |_| {
@@ -435,6 +504,7 @@ pub fn App() -> Element {
                                 }
                             }
                         }
+                    }
                     }
                     if !detail().is_empty() {
                         section {

@@ -19,12 +19,15 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
-      - uses: cargo-bins/cargo-binstall@main
-      # cargo install from source is ~30 min; binstall is seconds.
+      - uses: cargo-bins/cargo-binstall@3d9c602cf4a75690ce794b00d847819897b7766a
+      # cargo install from source is ~30 min; binstall is seconds. A restored
+      # cache can make binstall a no-op, so expose and invoke the path explicitly.
       - name: Install dioxus-cli
-        run: cargo binstall --no-confirm dioxus-cli@0.7.9 --locked
+        run: |
+          cargo binstall --force --no-confirm dioxus-cli@0.7.9 --locked
+          echo "$CARGO_HOME/bin" >> "$GITHUB_PATH"
       - name: Build web app (wasm)
-        run: dx build --platform web --release
+        run: "$CARGO_HOME/bin/dx build --platform web --release"
         working-directory: apps/web
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:

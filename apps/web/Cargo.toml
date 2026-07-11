@@ -31,7 +31,7 @@ path = "src/main.rs"
 [dependencies]
 # `hooks` adds use_signal/use_effect on top of the workspace base features;
 # they work in SSR too, so the shell compiles under default features.
-dioxus = { workspace = true, features = ["hooks"] }
+dioxus = { workspace = true, features = ["hooks", "asset", "document"] }
 # The same engine as the CLI, compiled to wasm: the policy and the snapshot
 # never leave the browser in local mode.
 rumble-ai-clearance-dataset = { workspace = true }
