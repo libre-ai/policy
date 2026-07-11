@@ -1,4 +1,6 @@
-# rumble-ai-clearance
+# Policy
+
+Canonical repository: [`libre-ai/policy`](https://github.com/libre-ai/policy). The historical `rumble-ai-clearance-*` crate, binary and document identifiers remain stable technical contracts.
 
 Security clearance for AI models. Match a business need (task type, processing
 purpose, data sensitivity) against your organisation's security policy (banned
