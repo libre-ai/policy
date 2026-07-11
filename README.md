@@ -70,7 +70,7 @@ crates/dataset     snapshot format: manifest, provenance, atomic writes
 crates/sync        AA / HF / curated connectors (fixtures-tested, no live CI)
 crates/cli         clearance: sync | validate | evaluate | explain | check
 crates/api         clearance-api: read-only HTTP API (see docs/api.md)
-apps/web           Dioxus UI, dual mode (local WASM / org API client)
+apps/web           Dioxus UI, dual mode, Libre IA Design System 2.0 via Portal
 content/           default rulebook (sourced) + curated provider governance
 schemas/           JSON Schema contracts: policy, governance
 examples/          example org policy + need profiles
@@ -111,7 +111,7 @@ cargo test --workspace          # unit, property-based, golden, e2e CLI/API
 cargo clippy --workspace --all-targets -- -D warnings
 cargo deny check                # licences (AGPL/SSPL banned), advisories
 
-# Web UI
+# Web UI — self-hosted fonts and versioned Portal/Libre IA assets
 cd apps/web && dx build --platform web --release
 npx playwright test             # chromium + firefox + webkit
 ```

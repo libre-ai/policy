@@ -49,6 +49,18 @@ test("a sensitive PII need tightens verdicts (fail-closed, monotonic)", async ({
   expect(strict).toBeLessThanOrEqual(relaxed);
 });
 
+test("server mode rejects an empty API URL before any request", async ({ page }) => {
+  await page
+    .getByLabel("Server mode (query your org's clearance-api instead)")
+    .check();
+  await page.getByRole("button", { name: "Evaluate" }).click();
+
+  await expect(page.getByRole("alert")).toContainText(
+    "API base URL is required in server mode",
+  );
+  await expect(page.getByRole("table")).toHaveCount(0);
+});
+
 test("attribution and no-redistribution notice are always visible", async ({
   page,
 }) => {

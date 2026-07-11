@@ -314,6 +314,17 @@ fn need_profile_parses_from_yaml() {
 }
 
 #[test]
+fn need_profile_rejects_duplicate_and_unknown_fields() {
+    let duplicate =
+        "task: code_generation\npurpose: public_content\nsensitivity: c3\nsensitivity: c0\n";
+    let unknown =
+        "task: code_generation\npurpose: public_content\nsensitivity: c0\nunknown: value\n";
+
+    assert!(parse_need(duplicate).is_err());
+    assert!(parse_need(unknown).is_err());
+}
+
+#[test]
 fn empty_ranking_dimension_list_is_rejected() {
     // An empty list would silently degrade ranking to price-only: refuse it.
     let yaml = r#"

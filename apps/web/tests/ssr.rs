@@ -2,8 +2,10 @@
 //! an SSR smoke render of the shell.
 
 use dioxus::prelude::*;
+use rumble_ai_clearance_domain::Hosting;
 use rumble_ai_clearance_web::{
     App, DEMO_SNAPSHOT, EXAMPLE_ORG_POLICY, evaluate_locally, explain_locally,
+    normalize_server_base_url, parse_remote_outcome,
 };
 
 #[test]
@@ -68,6 +70,49 @@ fn unknown_model_explains_as_denied() {
     let text = lines.join("\n");
     assert!(text.contains("INELIGIBLE"), "got: {text}");
     assert!(text.contains("builtin.unknown-model"));
+}
+
+#[test]
+fn server_base_url_is_required_and_normalized() {
+    assert_eq!(
+        normalize_server_base_url(" https://clearance.example/ ").unwrap(),
+        "https://clearance.example"
+    );
+    assert!(normalize_server_base_url("  ").is_err());
+}
+
+#[test]
+fn remote_contract_preserves_viable_hostings() {
+    let payload = serde_json::json!({
+        "data": {
+            "eligible": [{
+                "model": "mistralai/mistral-large",
+                "viable_hostings": [Hosting::SelfHosted]
+            }],
+            "ineligible_count": 2,
+            "indeterminate_count": 1
+        },
+        "meta": { "snapshot_generated_at": "2026-07-10T00:00:00Z" }
+    });
+
+    let outcome = parse_remote_outcome(&payload).expect("valid API contract");
+    assert_eq!(outcome.ineligible_count, 2);
+    assert_eq!(outcome.indeterminate_count, 1);
+    assert_eq!(outcome.eligible[0].hostings, ["self-hosted"]);
+}
+
+#[test]
+fn malformed_remote_counts_fail_closed() {
+    let payload = serde_json::json!({
+        "data": {
+            "eligible": [],
+            "ineligible_count": "2",
+            "indeterminate_count": 1
+        },
+        "meta": { "snapshot_generated_at": "2026-07-10T00:00:00Z" }
+    });
+
+    assert!(parse_remote_outcome(&payload).is_err());
 }
 
 #[test]
