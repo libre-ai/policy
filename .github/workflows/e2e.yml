@@ -24,7 +24,7 @@ jobs:
       # cache can make binstall a no-op, so expose and invoke the path explicitly.
       - name: Install dioxus-cli
         run: |
-          cargo binstall --no-confirm dioxus-cli@0.7.9 --locked
+          cargo binstall --force --no-confirm dioxus-cli@0.7.9 --locked
           echo "$CARGO_HOME/bin" >> "$GITHUB_PATH"
       - name: Build web app (wasm)
         run: "$CARGO_HOME/bin/dx build --platform web --release"
