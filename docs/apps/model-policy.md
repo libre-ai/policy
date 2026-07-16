@@ -42,7 +42,7 @@ Verdict is `eligible | ineligible | indeterminate`; only all mandatory rules sat
 | `policy.snapshot_unsourced` | required fact lacks source/provenance |
 | `policy.snapshot_stale` | source age exceeds rule bound |
 | `policy.origin_jurisdiction_conflated` | snapshot maps origin directly to jurisdiction |
-| `policy.fact_unknown` | required fact absent; result becomes indeterminate/ineligible per rule |
+| `policy.fact_absent` | required fact absent; result becomes indeterminate/ineligible per rule |
 | `policy.rule_unbounded` | rule uses unsupported/non-deterministic operation |
 | `policy.dataset_redistribution_forbidden` | export would include restricted source payload |
 | `policy.engine_version_unknown` | no qualified evaluator for contract/engine version |
@@ -69,10 +69,12 @@ Policy diff, verdict and rule trace have structured tables/lists and do not rely
 ## Contracts
 
 - Policy Definition v1 — `contracts/schemas/policy-definition.v1.schema.json` ;
+- Policy Need v1 — `contracts/schemas/policy-need.v1.schema.json` ;
 - Model Snapshot v1 — `contracts/schemas/model-snapshot.v1.schema.json` ;
 - Policy Evaluation v1 — `contracts/schemas/policy-evaluation.v1.schema.json` ;
 - Model Policy API — `contracts/openapi/model-policy.v1.yaml` ;
-- pure evaluator — `contracts/wit/policy-core-v1/world.wit`.
+- pure evaluator boundary — `contracts/wit/policy-core-v1/world.wit` ;
+- normative evaluator semantics — `contracts/wit/policy-core-v1/SEMANTICS.md`.
 
 ## Evidence
 
