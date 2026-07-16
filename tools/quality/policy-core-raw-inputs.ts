@@ -284,14 +284,17 @@ export async function verifyPolicyCoreRawInputVectors(
 
     const expectedErrors = rawCase.expectedErrors;
     const expected = isRecord(expectedErrors) ? expectedErrors[major] : undefined;
-    const expectedMessage = `input does not conform to ${major}`;
-    if (
-      !isRecord(expected) ||
-      expected.code !== "policy.input_invalid" ||
-      expected.message !== expectedMessage
-    ) {
-      failures.push(`${label}: invalid ${major} public error`);
-    }
+    const expectedKeys = isRecord(expected) ? Object.keys(expected).sort() : [];
+    const validExpectedRefusal =
+      major === "policy-core-v1"
+        ? isRecord(expected) &&
+          JSON.stringify(expectedKeys) === JSON.stringify(["code", "message"]) &&
+          expected.code === "policy.input_invalid" &&
+          expected.message === "input does not conform to policy-core-v1"
+        : isRecord(expected) &&
+          JSON.stringify(expectedKeys) === JSON.stringify(["variant"]) &&
+          expected.variant === "input-invalid";
+    if (!validExpectedRefusal) failures.push(`${label}: invalid ${major} component refusal`);
   }
 
   const validControl = new TextEncoder().encode(
