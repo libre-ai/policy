@@ -90,7 +90,7 @@ Candidate v2 amendment:
 
 ## Evidence
 
-Golden vectors cover every operator, unknown path, source age and origin/jurisdiction distinction in Rust and TypeScript. Property tests prove order independence and deny-by-default. Contract fixtures include restricted payload and cross-tenant negatives. E2E covers author/approve/import/evaluate/export/replay. Supply-chain/licence gate checks every bundled dataset.
+Golden vectors cover every operator, unknown path, source age and origin/jurisdiction distinction in Rust and TypeScript. Byte-exact decoder refusals and cardinality-derived CPU/256 MiB memory qualification ceilings are checked before implementation. Property tests prove order independence and deny-by-default. Contract fixtures include restricted payload and cross-tenant negatives. E2E covers author/approve/import/evaluate/export/replay. Supply-chain/licence gate checks every bundled dataset.
 
 ## Work packages
 
