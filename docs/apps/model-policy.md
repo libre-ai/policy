@@ -100,7 +100,7 @@ Golden vectors cover every operator, unknown path, source age and origin/jurisdi
 4. React trace/diff/local evaluation — Experiences + Web Platform ;
 5. provenance/licence/determinism qualification — Proof + Infrastructure and Release.
 
-No Rust implementation starts while the v2 authorities remain candidates. After independent architecture, security and privacy approval, Rust and UI may proceed in parallel only against accepted golden vectors.
+No Rust implementation starts while the v2 authorities remain candidates. After independent Architecture, Security and Privacy agent verdicts, Rust and UI may proceed in parallel only against accepted golden vectors.
 
 ## Release and rollback
 
