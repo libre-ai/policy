@@ -1,16 +1,17 @@
 import { readFile } from "node:fs/promises";
 
 type JsonRecord = Record<string, unknown>;
-type RawDefect =
+export type RawDefect =
   | "bom"
   | "invalid-utf8"
   | "duplicate-member"
   | "unpaired-surrogate"
+  | "max-depth"
   | "invalid-number"
   | "invalid-json";
 type PolicyCoreMajor = "policy-core-v1" | "policy-core-v2";
 
-class StrictJsonError extends Error {
+export class StrictJsonError extends Error {
   constructor(
     readonly defect: RawDefect,
     message: string,
@@ -23,20 +24,24 @@ class StrictJsonError extends Error {
 class StrictJsonParser {
   private index = 0;
 
-  constructor(private readonly input: string) {}
+  constructor(
+    private readonly input: string,
+    private readonly maxDepth: number,
+  ) {}
 
   parse(): void {
     this.skipWhitespace();
-    this.parseValue();
+    this.parseValue(0);
     this.skipWhitespace();
     if (this.index !== this.input.length) this.fail("invalid JSON trailing bytes");
   }
 
-  private parseValue(): void {
+  private parseValue(depth: number): void {
+    if (depth > this.maxDepth) this.fail("maximum JSON depth exceeded", "max-depth");
     this.skipWhitespace();
     const current = this.input[this.index];
-    if (current === "{") this.parseObject();
-    else if (current === "[") this.parseArray();
+    if (current === "{") this.parseObject(depth);
+    else if (current === "[") this.parseArray(depth);
     else if (current === '"') this.parseString();
     else if (current === "t") this.parseLiteral("true");
     else if (current === "f") this.parseLiteral("false");
@@ -48,7 +53,7 @@ class StrictJsonParser {
     else this.fail("invalid JSON value");
   }
 
-  private parseObject(): void {
+  private parseObject(depth: number): void {
     this.index += 1;
     this.skipWhitespace();
     const keys = new Set<string>();
@@ -64,7 +69,7 @@ class StrictJsonParser {
       this.skipWhitespace();
       if (this.input[this.index] !== ":") this.fail("missing object member colon");
       this.index += 1;
-      this.parseValue();
+      this.parseValue(depth + 1);
       this.skipWhitespace();
       const delimiter = this.input[this.index];
       if (delimiter === "}") {
@@ -77,7 +82,7 @@ class StrictJsonParser {
     }
   }
 
-  private parseArray(): void {
+  private parseArray(depth: number): void {
     this.index += 1;
     this.skipWhitespace();
     if (this.input[this.index] === "]") {
@@ -85,7 +90,7 @@ class StrictJsonParser {
       return;
     }
     while (true) {
-      this.parseValue();
+      this.parseValue(depth + 1);
       this.skipWhitespace();
       const delimiter = this.input[this.index];
       if (delimiter === "]") {
@@ -212,7 +217,7 @@ class StrictJsonParser {
   }
 }
 
-function decodeStrictJson(bytes: Uint8Array): void {
+export function decodeStrictJson(bytes: Uint8Array, maxDepth = Number.MAX_SAFE_INTEGER): string {
   if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf)
     throw new StrictJsonError("bom", "UTF-8 BOM is forbidden");
   let decoded: string;
@@ -221,7 +226,12 @@ function decodeStrictJson(bytes: Uint8Array): void {
   } catch {
     throw new StrictJsonError("invalid-utf8", "input is not valid UTF-8");
   }
-  new StrictJsonParser(decoded).parse();
+  new StrictJsonParser(decoded, maxDepth).parse();
+  return decoded;
+}
+
+export function parseStrictJson(bytes: Uint8Array, maxDepth = Number.MAX_SAFE_INTEGER): unknown {
+  return JSON.parse(decodeStrictJson(bytes, maxDepth));
 }
 
 function isRecord(value: unknown): value is JsonRecord {
