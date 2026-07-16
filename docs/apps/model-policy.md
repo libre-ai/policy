@@ -56,7 +56,7 @@ PostgreSQL owns organization policies, immutable accepted versions, source refer
 
 ## Authentication and authorization
 
-Public reference policies MAY be readable without session. Organization editing/evaluation requires opaque session and tenant. Biscuit resources are `policy/<id>/<version>`, `snapshot/<id>` and `evaluation/<id>`; an editor cannot approve their own version in v1. Rust policy core receives no token; Bun authorizes then passes canonical policy/need/snapshot bytes. RLS repeats tenant isolation.
+All Model Policy v1 reads, editing and evaluation require an opaque organization session and tenant. A future public reference policy is a reviewed Website projection, not a public Model Policy API exception. Biscuit resources are `policy/<id>/<version>`, `snapshot/<id>` and `evaluation/<id>`; an editor cannot approve their own version in v1. Rust policy core receives no token; Bun authorizes then passes canonical policy/need/snapshot bytes. RLS repeats tenant isolation.
 
 ## Runtime boundaries
 
