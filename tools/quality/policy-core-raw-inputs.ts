@@ -110,8 +110,8 @@ class StrictJsonParser {
       if (code < 0x20) this.fail("unescaped control character in JSON string");
       if (current === "\\") {
         this.index += 1;
-        const escape = this.input[this.index];
-        if (escape === undefined) this.fail("unterminated JSON escape");
+        const escapeCode = this.input[this.index];
+        if (escapeCode === undefined) this.fail("unterminated JSON escape");
         const simpleEscapes: Record<string, string> = {
           '"': '"',
           "\\": "\\",
@@ -122,8 +122,8 @@ class StrictJsonParser {
           r: "\r",
           t: "\t",
         };
-        if (escape !== "u") {
-          const value = simpleEscapes[escape];
+        if (escapeCode !== "u") {
+          const value = simpleEscapes[escapeCode];
           if (value === undefined) this.fail("invalid JSON escape");
           decoded += value;
           this.index += 1;
