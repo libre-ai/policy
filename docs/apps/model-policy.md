@@ -56,11 +56,11 @@ PostgreSQL owns organization policies, immutable accepted versions, source refer
 
 ## Authentication and authorization
 
-All Model Policy v1 reads, editing and evaluation require an opaque organization session and tenant. A future public reference policy is a reviewed Website projection, not a public Model Policy API exception. Biscuit resources are `policy/<id>/<version>`, `snapshot/<id>` and `evaluation/<id>`; an editor cannot approve their own version in v1. Rust policy core receives no token; Bun authorizes then passes canonical policy/need/snapshot bytes. RLS repeats tenant isolation.
+All Model Policy v2 reads, editing and evaluation require an opaque organization session and tenant. A future public reference policy is a reviewed Website projection, not a public Model Policy API exception. Biscuit resources are `policy/<id>/<version>`, `snapshot/<id>` and `evaluation/<id>`. Policy v2 records a human `proposedBy` and a distinct human `approval.approverId`; an agent or editor cannot approve its own version. The candidate Rust policy core receives no token; Bun authorizes then passes canonical policy/need/snapshot bytes. RLS repeats tenant isolation.
 
 ## Runtime boundaries
 
-TypeScript owns authoring, approval, persistence, source adapter and explanations UI. Rust owns schema-validated pure evaluation, stable rule IDs, deterministic trace and canonical result hashing through WIT/WASM. No HTTP, clock, randomness or DB in the Rust world; evaluation time/source freshness is an explicit input fact.
+TypeScript owns authoring, human approval, persistence, source adapter and explanations UI. The candidate Rust/WASM boundary reserves schema-validated pure evaluation, stable rule IDs, deterministic trace and canonical result hashing; this contract amendment implements no engine. The future component has no HTTP, clock, randomness, identity or DB; evaluation time/source freshness is explicit input.
 
 ## Accessibility and degraded mode
 
@@ -68,13 +68,25 @@ Policy diff, verdict and rule trace have structured tables/lists and do not rely
 
 ## Contracts
 
-- Policy Definition v1 — `contracts/schemas/policy-definition.v1.schema.json` ;
-- Policy Need v1 — `contracts/schemas/policy-need.v1.schema.json` ;
-- Model Snapshot v1 — `contracts/schemas/model-snapshot.v1.schema.json` ;
-- Policy Evaluation v1 — `contracts/schemas/policy-evaluation.v1.schema.json` ;
+Locked v1 baseline:
+
+- Policy Definition — `contracts/schemas/policy-definition.v1.schema.json` ;
+- Policy Need — `contracts/schemas/policy-need.v1.schema.json` ;
+- Model Snapshot — `contracts/schemas/model-snapshot.v1.schema.json` ;
+- Policy Evaluation — `contracts/schemas/policy-evaluation.v1.schema.json` ;
 - Model Policy API — `contracts/openapi/model-policy.v1.yaml` ;
 - pure evaluator boundary — `contracts/wit/policy-core-v1/world.wit` ;
 - normative evaluator semantics — `contracts/wit/policy-core-v1/SEMANTICS.md`.
+
+Candidate v2 amendment:
+
+- Policy Definition v2 — `contracts/schemas/policy-definition.v2.schema.json` ;
+- Policy Need v2 — `contracts/schemas/policy-need.v2.schema.json` ;
+- Model Snapshot v2 — `contracts/schemas/model-snapshot.v2.schema.json` ;
+- Policy Evaluation v2 — `contracts/schemas/policy-evaluation.v2.schema.json` ;
+- Model Policy API v2 — `contracts/openapi/model-policy.v2.yaml` ;
+- pure evaluator candidate — `contracts/wit/policy-core-v2/world.wit` ;
+- normative evaluator semantics — `contracts/wit/policy-core-v2/SEMANTICS.md`.
 
 ## Evidence
 
@@ -88,7 +100,7 @@ Golden vectors cover every operator, unknown path, source age and origin/jurisdi
 4. React trace/diff/local evaluation — Experiences + Web Platform ;
 5. provenance/licence/determinism qualification — Proof + Infrastructure and Release.
 
-Rust and UI may proceed in parallel only against accepted golden vectors.
+No Rust implementation starts while the v2 authorities remain candidates. After independent architecture, security and privacy approval, Rust and UI may proceed in parallel only against accepted golden vectors.
 
 ## Release and rollback
 
