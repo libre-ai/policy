@@ -50,6 +50,8 @@ Closed component errors remain distinct from successful `unknown` rule evidence.
 | `policy.engine_version_unknown` | no qualified evaluator for contract/engine version |
 | `policy.tenant_mismatch` | policy/snapshot/need tenant differs |
 
+The v2 HTTP refusal envelope contains only a stable code and opaque request ID;
+localized explanations are static UI mappings and never host-supplied free text.
 The UI may explain indeterminate but cannot override it to eligible.
 
 ## Data
