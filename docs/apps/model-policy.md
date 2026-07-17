@@ -36,27 +36,31 @@ Verdict is `eligible | ineligible | indeterminate`; only all mandatory rules sat
 
 ## Refusal matrix
 
-| Code | Refusal |
+Closed component errors remain distinct from successful `unknown` rule evidence.
+
+| Code | Boundary behavior |
 | --- | --- |
 | `policy.version_unapproved` | evaluation requests draft/unapproved policy |
 | `policy.snapshot_unsourced` | required fact lacks source/provenance |
-| `policy.snapshot_stale` | source age exceeds rule bound |
-| `policy.origin_jurisdiction_conflated` | snapshot maps origin directly to jurisdiction |
-| `policy.fact_absent` | required fact absent; result becomes indeterminate/ineligible per rule |
+| `policy.snapshot_stale` | successful evaluation with an `unknown` rule; verdict becomes indeterminate/ineligible per policy |
+| `policy.origin_jurisdiction_conflated` | upstream source adapter refusal before evaluation |
+| `policy.fact_absent` | successful evaluation with an `unknown` rule; verdict becomes indeterminate/ineligible per policy |
 | `policy.rule_unbounded` | rule uses unsupported/non-deterministic operation |
 | `policy.dataset_redistribution_forbidden` | export would include restricted source payload |
 | `policy.engine_version_unknown` | no qualified evaluator for contract/engine version |
 | `policy.tenant_mismatch` | policy/snapshot/need tenant differs |
 
+The v2 HTTP refusal envelope contains only a stable code and opaque request ID;
+localized explanations are static UI mappings and never host-supplied free text.
 The UI may explain indeterminate but cannot override it to eligible.
 
 ## Data
 
-PostgreSQL owns organization policies, immutable accepted versions, source references, snapshot facts/provenance, needs and evaluation manifests. Restricted source payloads are not stored unless licence explicitly permits and owner approves; only citations/digests and derived allowed facts persist. Accepted policy/snapshot records follow ADR-0002 section 3 retention and remain immutable while referenced. Migration source is selected public model-policy/policy contracts and accepted source datasets, not historical private tables.
+PostgreSQL owns organization policies, immutable accepted versions, source references, snapshot facts/provenance, needs and evaluation manifests. Restricted source payloads are not stored unless licence explicitly permits and owner approves; only sanitized public HTTPS citations with DNS-shaped hosts and without localhost, IP literals, userinfo, query or fragment, digests and derived allowed facts persist. Citations contain no credential, email or other personal data. Model IDs are opaque `mdl_*` values and textual facts are bounded machine tokens, never free-form personal content. Accepted policy/snapshot records follow ADR-0002 section 3 retention and remain immutable while referenced. Migration source is selected public model-policy/policy contracts and accepted source datasets, not historical private tables.
 
 ## Authentication and authorization
 
-All Model Policy v2 reads, editing and evaluation require an opaque organization session and tenant. A future public reference policy is a reviewed Website projection, not a public Model Policy API exception. Biscuit resources are `policy/<id>/<version>`, `snapshot/<id>` and `evaluation/<id>`. Policy v2 records a human `proposedBy` and a distinct human `approval.approverId`; an agent or editor cannot approve its own version. The candidate Rust policy core receives no token; Bun authorizes then passes canonical policy/need/snapshot bytes. RLS repeats tenant isolation.
+All Model Policy v2 reads, editing and evaluation require an opaque organization session and tenant. A future public reference policy is a reviewed Website projection, not a public Model Policy API exception. Biscuit resources are `policy/<id>/<version>`, `snapshot/<id>` and `evaluation/<id>`. Policy v2 records an opaque `usr_*` or `svc_*` `proposedBy` and a distinct opaque human `usr_*` `approval.approverId`; a service, agent or editor may propose but cannot approve its own version. The candidate Rust policy core receives no token; Bun authorizes then passes canonical policy/need/snapshot bytes. RLS repeats tenant isolation.
 
 ## Runtime boundaries
 
@@ -90,7 +94,7 @@ Candidate v2 amendment:
 
 ## Evidence
 
-Golden vectors cover every operator, unknown path, source age and origin/jurisdiction distinction in Rust and TypeScript. Byte-exact decoder refusals and cardinality-derived CPU/256 MiB memory qualification ceilings are checked before implementation. Property tests prove order independence and deny-by-default. Contract fixtures include restricted payload and cross-tenant negatives. E2E covers author/approve/import/evaluate/export/replay. Supply-chain/licence gate checks every bundled dataset.
+Golden vectors cover every operator, unknown path, source age and origin/jurisdiction distinction in Rust and TypeScript. Byte-exact decoder refusals, schema-valid exact byte ceilings, ceiling+1 refusals, depth 64 and cardinality-derived CPU/256 MiB memory qualification ceilings are checked before implementation. Property tests prove order independence and deny-by-default. Contract fixtures include restricted payload and cross-tenant negatives. E2E covers author/approve/import/evaluate/export/replay. Supply-chain/licence gate checks every bundled dataset.
 
 ## Work packages
 
