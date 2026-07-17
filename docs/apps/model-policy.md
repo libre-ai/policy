@@ -36,13 +36,15 @@ Verdict is `eligible | ineligible | indeterminate`; only all mandatory rules sat
 
 ## Refusal matrix
 
-| Code | Refusal |
+Closed component errors remain distinct from successful `unknown` rule evidence.
+
+| Code | Boundary behavior |
 | --- | --- |
 | `policy.version_unapproved` | evaluation requests draft/unapproved policy |
 | `policy.snapshot_unsourced` | required fact lacks source/provenance |
-| `policy.snapshot_stale` | source age exceeds rule bound |
-| `policy.origin_jurisdiction_conflated` | snapshot maps origin directly to jurisdiction |
-| `policy.fact_absent` | required fact absent; result becomes indeterminate/ineligible per rule |
+| `policy.snapshot_stale` | successful evaluation with an `unknown` rule; verdict becomes indeterminate/ineligible per policy |
+| `policy.origin_jurisdiction_conflated` | upstream source adapter refusal before evaluation |
+| `policy.fact_absent` | successful evaluation with an `unknown` rule; verdict becomes indeterminate/ineligible per policy |
 | `policy.rule_unbounded` | rule uses unsupported/non-deterministic operation |
 | `policy.dataset_redistribution_forbidden` | export would include restricted source payload |
 | `policy.engine_version_unknown` | no qualified evaluator for contract/engine version |
@@ -52,7 +54,7 @@ The UI may explain indeterminate but cannot override it to eligible.
 
 ## Data
 
-PostgreSQL owns organization policies, immutable accepted versions, source references, snapshot facts/provenance, needs and evaluation manifests. Restricted source payloads are not stored unless licence explicitly permits and owner approves; only sanitized public HTTPS citations without userinfo/query/fragment, digests and derived allowed facts persist. Citations contain no credential, email or other personal data. Accepted policy/snapshot records follow ADR-0002 section 3 retention and remain immutable while referenced. Migration source is selected public model-policy/policy contracts and accepted source datasets, not historical private tables.
+PostgreSQL owns organization policies, immutable accepted versions, source references, snapshot facts/provenance, needs and evaluation manifests. Restricted source payloads are not stored unless licence explicitly permits and owner approves; only sanitized public HTTPS citations with DNS-shaped hosts and without localhost, IP literals, userinfo, query or fragment, digests and derived allowed facts persist. Citations contain no credential, email or other personal data. Model IDs are opaque `mdl_*` values and textual facts are bounded machine tokens, never free-form personal content. Accepted policy/snapshot records follow ADR-0002 section 3 retention and remain immutable while referenced. Migration source is selected public model-policy/policy contracts and accepted source datasets, not historical private tables.
 
 ## Authentication and authorization
 
