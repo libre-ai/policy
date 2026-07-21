@@ -30,13 +30,31 @@ Semantic refusals:
   homogeneous unique set, `at-least`/`at-most` → number), or a source-age bound on
   a non-`model.` fact.
 
+## Increment 2 — model-snapshot validator
+
+`src/domain/model-snapshot.ts` validates the other authoring-time input to
+evaluation: a `model-snapshot.v2`, the sourced, content-addressed set of facts
+about a model. `validateModelSnapshot(input)` returns the same three-state
+result:
+
+| Status      | Meaning                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------ |
+| `valid`     | a typed, contract-conformant snapshot (deep-frozen)                                        |
+| `malformed` | identity/structure fails the schema — boundary concern, no matrix code                     |
+| `refused`   | a well-formed snapshot with a fact that lacks a valid source → `policy.snapshot_unsourced` |
+
+Each fact is `{name (model.*), value (scalar), source}`; a fact whose name/value
+is structurally bad is `malformed`, while a fact missing or with an invalid
+`source` is `snapshot_unsourced`. Fact names are the stable identity (duplicates
+refused). Content-digest verification is deferred.
+
 ### Deliberately deferred
 
 - The deterministic **rule evaluator** (Rust/WASM boundary) and the
-  evaluation-time codes (`snapshot_unsourced`, `snapshot_stale`, `fact_absent`,
-  `engine_version_unknown`, `origin_jurisdiction_conflated`), the cross-input
-  `tenant_mismatch`, export (`dataset_redistribution_forbidden`), persistence, the
-  source adapter and the UI.
+  evaluation-time codes (`snapshot_stale`, `fact_absent`, `engine_version_unknown`,
+  `origin_jurisdiction_conflated`), the cross-input `tenant_mismatch`, export
+  (`dataset_redistribution_forbidden`), content-digest verification, persistence,
+  the source adapter and the UI.
 - **Source-URI destination safety** (rejecting private/loopback/metadata hosts,
   DNS-rebinding): this validator checks the contract's `https` **shape** only.
   Destination policy is a fetch-time concern owned by the deferred source adapter
