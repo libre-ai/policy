@@ -48,6 +48,20 @@ is structurally bad is `malformed`, while a fact missing or with an invalid
 `source` is `snapshot_unsourced`. Fact names are the stable identity (duplicates
 refused). Content-digest verification is deferred.
 
+## Increment 3 — policy-need validator
+
+`src/domain/policy-need.ts` validates the **third** evaluation input, a
+`policy-need.v2` — the set of `need.*` facts a policy is evaluated against.
+`validatePolicyNeed(input)` is **two-state** (`valid` / `malformed`): unlike a
+snapshot, need facts carry no source, and the refusal matrix defines no
+authoring-time semantic refusal for a need's structure, so any identity or
+fact-structure failure is `malformed` and a conformant need is `valid`. Fact
+names are the stable identity (duplicates refused).
+
+With this, **model-policy validates all three evaluation inputs** — policy,
+snapshot and need — at authoring time; deterministic evaluation across them
+remains the deferred Rust/WASM boundary.
+
 ### Deliberately deferred
 
 - The deterministic **rule evaluator** (Rust/WASM boundary) and the
