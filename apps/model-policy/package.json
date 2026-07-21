@@ -11,5 +11,10 @@
     "check:bun": "bun ../../tools/quality/check-bun-minimum.ts",
     "pretest": "bun run check:bun",
     "test": "bun test"
+  },
+  "dependencies": {
+    "@libre-ai/web-platform": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   }
 }

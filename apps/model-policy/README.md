@@ -5,6 +5,25 @@ that decide whether a model snapshot satisfies a need, with explainable verdicts
 
 Work package: `WP-G3-M01`.
 
+## Increment 4 — cockpit (accessible SSR read view)
+
+`src/server/handler.ts` + `src/ui/model-policy-cockpit.tsx` serve the read-only
+policies cockpit, server-rendered and usable **without JavaScript**, from a contract
+fixture (`src/ui/fixture.ts`). The view **authors nothing and evaluates nothing** —
+the deterministic rule evaluation is the deferred Rust/WASM boundary; the cockpit
+lists the approved policy definitions and their metadata.
+
+- `createModelPolicyHandler` routes `/` to the SSR document and `/api/health` to a
+  JSON status; an unknown route is `404`.
+- `ModelPolicyCockpit` renders an ordered, accessible table (a `<caption>`, `scope`
+  column/row headers, a skip link, a `main` landmark): each policy's id, version,
+  rule count, proposer and approval date — conveyed **as text, never colour**.
+
+Verified: the static render is a well-formed `<!doctype html>` document in French,
+the table exposes its caption and header scopes, every fixture policy is listed, and
+no inline `style=` carries meaning; the handler serves the cockpit, health, and a 404. Authoring and approval journeys — and the Rust/WASM evaluator — arrive in later
+increments.
+
 ## Increment 1 — approved policy-definition validator
 
 `src/domain/policy-definition.ts` is the pure, offline validator for an approved
