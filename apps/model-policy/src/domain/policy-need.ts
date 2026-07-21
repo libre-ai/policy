@@ -9,16 +9,14 @@
 // belong to the deferred evaluator, not here. Patterns reuse the LOCKED
 // common.v1 / policy-need.v2 $defs verbatim.
 
+import { type FactScalar, hasExactKeys, isObject, validScalar } from "./fact-primitives";
+
+export type { FactScalar };
+
 const NEED_ID = /^urn:libre-ai:need:[A-Za-z0-9._~-]+$/;
 const TENANT_ID = /^ten_[a-z0-9]{16,64}$/;
 const SHA256 = /^[a-f0-9]{64}$/;
 const FACT_NAME = /^need\.[a-z][a-z0-9_.-]+$/;
-const FACT_STRING = /^[A-Za-z0-9][A-Za-z0-9._:/+~-]{0,255}$/;
-
-const MIN_SAFE = -9007199254740991;
-const MAX_SAFE = 9007199254740991;
-
-export type FactScalar = string | number | boolean;
 
 export interface NeedFact {
   readonly name: string;
@@ -37,23 +35,6 @@ export type NeedValidation =
   | { readonly status: "malformed" };
 
 const MALFORMED: NeedValidation = { status: "malformed" };
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function hasExactKeys(obj: Record<string, unknown>, allowed: readonly string[]): boolean {
-  const permitted = new Set(allowed);
-  return Object.keys(obj).every((key) => permitted.has(key));
-}
-function isFactString(value: unknown): value is string {
-  return typeof value === "string" && FACT_STRING.test(value);
-}
-function isSafeNumber(value: unknown): value is number {
-  return typeof value === "number" && value >= MIN_SAFE && value <= MAX_SAFE;
-}
-function validScalar(value: unknown): value is FactScalar {
-  return isFactString(value) || isSafeNumber(value) || typeof value === "boolean";
-}
 
 function validFact(value: unknown): NeedFact | undefined {
   if (!isObject(value) || !hasExactKeys(value, ["name", "value"])) return undefined;

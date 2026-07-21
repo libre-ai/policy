@@ -13,6 +13,16 @@
 //   - `valid`     — a typed, conformant approved policy.
 // Patterns reuse the LOCKED common.v1 / policy-definition.v2 $defs verbatim.
 
+import {
+  type FactScalar,
+  isFactString,
+  isObject,
+  isSafeNumber,
+  validScalar,
+} from "./fact-primitives";
+
+export type { FactScalar };
+
 const POLICY_ID = /^urn:libre-ai:policy:[A-Za-z0-9._~-]+$/;
 const TENANT_ID = /^ten_[a-z0-9]{16,64}$/;
 const IDENTIFIER = /^[a-z][a-z0-9_-]{2,127}$/;
@@ -21,7 +31,6 @@ const SHA256 = /^[a-f0-9]{64}$/;
 const PRINCIPAL_ID = /^(?:usr|svc)_[a-z0-9]{16,64}$/;
 const USER_ID = /^usr_[a-z0-9]{16,64}$/;
 const FACT_NAME = /^(?:model|need)\.[a-z][a-z0-9_.-]+$/;
-const FACT_STRING = /^[A-Za-z0-9][A-Za-z0-9._:/+~-]{0,255}$/;
 // The policySource.uri pattern from policy-definition.v2, reused verbatim. This
 // is authoring-time SHAPE validation only; destination safety (rejecting private,
 // loopback or metadata hosts, DNS-rebinding) is a FETCH-TIME concern owned by the
@@ -42,11 +51,10 @@ const SET_OPERATORS = ["in", "not-in"] as const;
 const NUMERIC_OPERATORS = ["at-least", "at-most"] as const;
 const UNKNOWN_MODES = ["indeterminate", "ineligible"] as const;
 
-const MIN_SAFE = -9007199254740991;
+// version is bounded by the JS safe-integer max (schema: integer, minimum 1).
 const MAX_SAFE = 9007199254740991;
 
 export type Operator = (typeof OPERATORS)[number];
-export type FactScalar = string | number | boolean;
 // A value is a scalar or a homogeneous set; homogeneity is a runtime invariant
 // enforced by `validSet`, not expressed at the type level.
 export type FactValue = FactScalar | readonly FactScalar[];
@@ -99,9 +107,6 @@ function refused(refusal: PolicyRefusalCode): PolicyValidation {
   return { status: "refused", refusal };
 }
 
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 function hasKeys(
   obj: Record<string, unknown>,
   required: readonly string[],
@@ -113,12 +118,6 @@ function hasKeys(
 }
 function isInt(value: unknown, min: number, max: number): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= min && value <= max;
-}
-function isFactString(value: unknown): value is string {
-  return typeof value === "string" && FACT_STRING.test(value);
-}
-function isSafeNumber(value: unknown): value is number {
-  return typeof value === "number" && value >= MIN_SAFE && value <= MAX_SAFE;
 }
 
 function validSource(value: unknown): PolicySource | undefined {
@@ -138,10 +137,6 @@ function validSource(value: unknown): PolicySource | undefined {
     digest: value.digest,
     licence: value.licence,
   });
-}
-
-function validScalar(value: unknown): value is FactScalar {
-  return isFactString(value) || isSafeNumber(value) || typeof value === "boolean";
 }
 
 // A set value must be a 1..100 unique array of a single scalar kind (booleans
