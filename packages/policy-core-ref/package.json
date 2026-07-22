@@ -1,0 +1,43 @@
+{
+  "name": "@libre-ai/policy-core-ref",
+  "version": "2.0.0",
+  "description": "TypeScript reference evaluator for policy-core-v2 — byte-identical semantics, RFC 8785 JCS + SHA-256 digests, 144-vector conformance.",
+  "license": "Apache-2.0",
+  "types": "./src/index.ts",
+  "files": [
+    "src",
+    "!src/**/*.test.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "keywords": [
+    "libre-ai",
+    "policy-core",
+    "evaluator",
+    "jcs",
+    "sha256",
+    "typescript"
+  ],
+  "homepage": "https://libre-ai.fr",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/libre-ai/libre-ai.git",
+    "directory": "packages/policy-core-ref"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check:bun": "bun ../../tools/quality/check-bun-minimum.ts",
+    "pretest": "bun run check:bun",
+    "test": "bun test"
+  },
+  "dependencies": {}
+}
