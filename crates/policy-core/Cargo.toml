@@ -8,11 +8,17 @@ repository.workspace = true
 publish = false
 
 [lib]
+crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
+
+[features]
+default = []
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 serde_jcs = { workspace = true }
 sha2 = { workspace = true }
+wit-bindgen.workspace = true
 
 [dev-dependencies]

@@ -6,5 +6,9 @@ pub mod jcs;
 pub mod normalize;
 pub mod types;
 
+#[cfg(target_arch = "wasm32")]
+#[allow(unsafe_code)]
+mod component;
+
 pub use evaluator::{EvaluateResult, evaluate};
 pub use types::{ENGINE_VERSION, ErrorCode, ReasonCode, RuleStatus, Verdict};
