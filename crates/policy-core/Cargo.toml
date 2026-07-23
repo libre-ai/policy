@@ -22,3 +22,5 @@ sha2 = { workspace = true }
 wit-bindgen.workspace = true
 
 [dev-dependencies]
+wasmparser.workspace = true
+wit-component.workspace = true

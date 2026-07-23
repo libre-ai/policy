@@ -78,16 +78,57 @@ fact-structure failure is `malformed` and a conformant need is `valid`. Fact
 names are the stable identity (duplicates refused).
 
 With this, **model-policy validates all three evaluation inputs** — policy,
-snapshot and need — at authoring time; deterministic evaluation across them
-remains the deferred Rust/WASM boundary.
+snapshot and need — at authoring time. Deterministic evaluation across them is
+wired in Increment 5.
+
+## Increment 5 — WASM evaluation adapter
+
+`src/evaluation/` binds the capability-free `policy-core` WASM component
+(`crates/policy-core`, WIT world `policy-core`, #214) as model-policy's runtime
+evaluator, matching the spec's runtime boundary: the authorizing **Bun** host
+passes canonical policy/snapshot/need bytes plus the explicit evaluation time to a
+component that imports **no** host capability (no clock, randomness, network,
+filesystem, KV, environment or logging).
+
+- `policy-core-evaluator.ts` — `createPolicyCoreEvaluator()` instantiates the
+  component once with an **empty import object**, refusing any core module that
+  requests an import, and returns a bytes-in/bytes-out `evaluate(policy, snapshot,
+need, evaluatedAt)` matching the WIT exactly. Deterministic: identical input
+  bytes yield byte-exact `policy-evaluation.v2` JCS bytes.
+- `error-mapping.ts` — lifts the six `policy-core` contract-error codes into a
+  typed union, failing **closed** to `engine-unknown` on any unlisted code.
+
+The component is a **server-side** boundary — model-policy is SSR, usable without
+JavaScript, with no client bundle; this is not a browser-hosted evaluator like the
+local-only Front-C apps.
+
+**Build & verify (server-side WASM):**
+
+```bash
+# Build the capability-free component + jco glue → target/policy-core-wasm/ (gitignored).
+# Run under node: jco's transpile worker is unsupported by Bun's process bindings.
+node tools/quality/build-policy-core-wasm.ts
+
+# Prove the built artifact imports nothing and exports exactly the policy-core API.
+cargo run --locked -p policy-core --example check_wasm_imports -- \
+  target/wasm32-unknown-unknown/release/policy_core.wasm
+
+# Replay every policy-core-v2 golden vector through the live component (20/20 byte-exact).
+bun tools/quality/policy-core-wasm-conformance.ts
+```
+
+CI (`rust-quality`) builds the component, runs `check_wasm_imports`, and verifies a
+reproducible byte-identical rebuild. The live jco conformance is the pre-merge
+qualification check, mirroring notebook-core's out-of-CI qualification harness.
 
 ### Deliberately deferred
 
-- The deterministic **rule evaluator** (Rust/WASM boundary) and the
-  evaluation-time codes (`snapshot_stale`, `fact_absent`, `engine_version_unknown`,
-  `origin_jurisdiction_conflated`), the cross-input `tenant_mismatch`, export
-  (`dataset_redistribution_forbidden`), content-digest verification, persistence,
-  the source adapter and the UI.
+- The **command surface** around evaluation — `EvaluateEligibility` with Biscuit
+  authorization, tenant RLS and persistence; surfacing the evaluation-time codes
+  (`snapshot_stale`, `fact_absent`, `engine_version_unknown`,
+  `origin_jurisdiction_conflated`) and export
+  (`dataset_redistribution_forbidden`) in a UI; content-digest verification, the
+  source adapter and the trace/diff UI. The pure evaluator itself is wired above.
 - **Source-URI destination safety** (rejecting private/loopback/metadata hosts,
   DNS-rebinding): this validator checks the contract's `https` **shape** only.
   Destination policy is a fetch-time concern owned by the deferred source adapter
