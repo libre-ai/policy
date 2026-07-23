@@ -31,7 +31,7 @@ jobs:
       - name: Machine-local paths (hard fail)
         run: |
           set -euo pipefail
-          local_path='/Users/[i]fi6567'
+          local_path='/Users/[i]fi6567' # allow-local-path (pattern definition)
           hits="$(git grep -I -n -E -e "$local_path" -- . | grep -v 'allow-local-path' || true)"
           if [ -n "$hits" ]; then
             printf '%s\n' "$hits"
