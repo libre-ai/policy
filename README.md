@@ -1,133 +1,69 @@
-> [!WARNING]
-> **Frozen on 2026-07-16 — reserved as the future home of Model Policy ([monorepo ADR-0008](https://github.com/libre-ai/libre-ai/blob/main/docs/adr/0008-multi-repo-target-topology-and-brand.md)).**
-> Model Policy is being rebuilt from locked contracts in the canonical base repository [`libre-ai/libre-ai`](https://github.com/libre-ai/libre-ai) (target: `apps/model-policy`). This repository will reopen as the real product repository when the owner activates it. Everything below describes the pre-freeze state and no longer reflects the current architecture or roadmap.
+**English** · [Français](README.fr.md)
 
-# Policy
+> [!NOTE]
+> **Reserved · future home of Model Policy** — rebuilt in the canonical base repository [`libre-ai/libre-ai`](https://github.com/libre-ai/libre-ai) ([multi-repo topology, ADR-0008](https://github.com/libre-ai/libre-ai/blob/main/docs/adr/0008-multi-repo-target-topology-and-brand.md)).
+> This repository will reopen as the real product repository when the owner activates it, consuming the base as a versioned dependency. The foundations described below are **being built now** — with links to the code that already exists.
 
-Canonical repository: [`libre-ai/policy`](https://github.com/libre-ai/policy). The historical `rumble-ai-clearance-*` crate, binary and document identifiers remain stable technical contracts.
+# Model Policy
 
-Security clearance for AI models. Match a business need (task type, processing
-purpose, data sensitivity) against your organisation's security policy (banned
-countries, jurisdictions, licences, hosting requirements, price) and get an
-**explainable, rule-by-rule verdict** for every model: eligible, ineligible, or
-indeterminate — never a silent default.
+**Security clearance for AI models.** Match a business need — task type, processing purpose, data sensitivity — against your organization's security policy — banned countries, jurisdictions, licences, hosting requirements, price — and get an **explainable, rule-by-rule verdict** for every model: `eligible`, `ineligible`, or `indeterminate`. Never a silent default.
 
-The canonical brief it answers: _"no US, no China, but self-hosted is fine"_ —
-expressed as a constraint on **where inference data flows** (jurisdiction,
-CLOUD Act aware), independent of **who created the model** (origin). Both
-dimensions are first-class and separately constrainable.
+The canonical brief it answers: _"no US, no China, but self-hosted is fine"_ — expressed as a constraint on **where inference data flows** (jurisdiction, CLOUD Act aware), independent of **who created the model** (origin). Both dimensions are first-class and separately constrainable.
 
-## Principles
+## Why it's different
 
-- **Policy as code**: the security team writes a versioned YAML policy on top
-  of a sourced default rulebook; every override and deactivation is named and
-  traced. See `schemas/policy.schema.json`.
-- **Deny by default**: unknown model, missing data on a required dimension, or
-  an undocumented hosting path is never eligible.
-- **Filter, then rank**: eligibility (security's domain) is strictly separated
-  from benchmark/price ranking (business's domain). A non-compliant model
-  never appears in a list "with a warning" — it is out, with its verdict
-  consultable.
-- **Local-first**: one pure Rust engine, compiled to native (CLI, CI gates,
-  self-hosted API) and WASM (browser — your policy never leaves your machine).
-- **Reproducible decisions**: every verdict cites its snapshot version;
-  snapshots carry per-field-group provenance and dated sources.
+- **Explainable, not a score.** Every verdict is traceable rule by rule — you see _which_ rule failed and _why_, on which sourced fact. A non-compliant model is out, with its reasoning consultable — never listed "with a warning".
+- **Deny by default.** An unknown model, a missing fact on a required dimension, or an undocumented hosting path is never `eligible`.
+- **Deterministic and replayable.** The same policy, snapshot and need always produce byte-identical evidence. Verdicts are reproducible and auditable, not a model's opinion.
+- **Filter, then rank.** Eligibility (security's domain) is strictly separated from benchmark/price ranking (business's domain).
+- **Sourced facts only.** Policies are built on a sourced rulebook; every override is named and traced. Model facts carry provenance.
 
-## Quickstart
+## Status — spec-published, foundations under construction
 
-```sh
-# 1. Build the org-local snapshot (get a free API key at artificialanalysis.ai)
-AA_API_KEY=... cargo run -p rumble-ai-clearance-cli --bin clearance -- sync \
-  --governance content/governance/providers.yaml \
-  --out data/snapshot.json
+Model Policy is being rebuilt from locked contracts. It is **not released yet**; the deterministic evaluation core comes first, and a good part of it already exists and is proven in the base repository:
 
-# 2. What can I use for summarising documents that contain personal data?
-cargo run -p rumble-ai-clearance-cli --bin clearance -- evaluate \
-  --rulebook content/rulebook/rulebook.yaml \
-  --policy examples/policy-no-us-cn-selfhost-ok.yaml \
-  --need examples/need-pii-summary.yaml \
-  --snapshot data/snapshot.json
+| Foundation                                                  | State                | Evidence                                                                                                                                       |
+| ----------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`policy-core`** — deterministic Rust evaluation engine    | ✅ built, byte-exact | 20/20 golden-vector conformance against normative `SEMANTICS.md` ([#212](https://github.com/libre-ai/libre-ai/pull/212))                       |
+| **`policy-core` → WASM** — capability-free component        | ✅ built             | No host imports — no clock, network, filesystem, randomness or identity ([#214](https://github.com/libre-ai/libre-ai/pull/214))                |
+| **Server-side evaluation** — the app consumes the component | ✅ wired             | Bun host instantiates the WASM and evaluates; live 20/20 byte-exact ([#215](https://github.com/libre-ai/libre-ai/pull/215))                    |
+| **`policy-core-ref`** — TypeScript reference evaluator      | ✅ published         | Byte-identical semantics, 144-vector conformance ([#207](https://github.com/libre-ai/libre-ai/pull/207))                                       |
+| Authoring validators — policy / snapshot / need             | ✅ built             | Fail-closed, contract-conformant ([#169](https://github.com/libre-ai/libre-ai/pull/169)–[#181](https://github.com/libre-ai/libre-ai/pull/181)) |
+| Command surface — authorize, persist, export, trace UI      | ⏳ next              | Biscuit authorization, tenant isolation, replay evidence                                                                                       |
 
-# 3. Gate a model in CI (exit 0 eligible / 1 refused / 2 error)
-cargo run -p rumble-ai-clearance-cli --bin clearance -- check meta/llama-4 \
-  --rulebook content/rulebook/rulebook.yaml \
-  --policy examples/policy-no-us-cn-selfhost-ok.yaml \
-  --need examples/need-code-public.yaml \
-  --snapshot data/snapshot.json
+This repository is `private` until a secrets audit clears it for public reopening (wave 4). **Benchmark target:** model-registry / model-card governance tooling (e.g. Hugging Face Hub) — reached through explainable, deny-by-default clearance rather than discovery.
 
-# 4. Why is a model refused?
-cargo run -p rumble-ai-clearance-cli --bin clearance -- explain openai/gpt-6 \
-  --rulebook content/rulebook/rulebook.yaml \
-  --policy examples/policy-no-us-cn-selfhost-ok.yaml \
-  --need examples/need-pii-summary.yaml \
-  --snapshot data/snapshot.json
-```
+## How it works
 
-Air-gapped / offline: `clearance sync --aa-file <recorded.json> --hf-file
-<recorded.json> --generated-at <rfc3339>` builds a reproducible snapshot
-without touching the network.
+1. **Author** — editors write a versioned policy of sourced eligibility rules over models' facts; approvers accept **immutable** policy versions (a proposer cannot approve their own).
+2. **Snapshot** — import sourced model/provider facts, validate provenance and licence, and freeze a content-addressed snapshot.
+3. **Evaluate** — declare a bounded need, run **local, deterministic** evaluation, and inspect the verdict with its failed and unknown rules and their evidence. Revocation blocks new evaluation but never rewrites past evidence.
 
-## Components
+## Architecture — built from interoperable bricks
 
-```
-crates/domain      pure eligibility engine (native + wasm), property-tested
-crates/policy      rulebook ⊕ org merge, traced deactivations, fail-closed
-crates/dataset     snapshot format: manifest, provenance, atomic writes
-crates/sync        AA / HF / curated connectors (fixtures-tested, no live CI)
-crates/cli         clearance: sync | validate | evaluate | explain | check
-crates/api         clearance-api: read-only HTTP API (see docs/api.md)
-apps/web           Dioxus UI, dual mode, Libre IA Design System 2.0 via Portal
-content/           default rulebook (sourced) + curated provider governance
-schemas/           JSON Schema contracts: policy, governance
-examples/          example org policy + need profiles
-```
+Model Policy is a product assembled from independently versioned bricks; each is usable and testable on its own, and the product is their composition (the multi-repo target of [ADR-0008](https://github.com/libre-ai/libre-ai/blob/main/docs/adr/0008-multi-repo-target-topology-and-brand.md)).
 
-## Policy model
+| Brick                                        | Role                                          | Interface it exposes / consumes                                                                                                 |
+| -------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **`policy-core`** (Rust → WASM component)    | The deterministic evaluation engine           | WIT world `policy-core`: `evaluate(policy, snapshot, need, evaluated-at) → evaluation`, capability-free                         |
+| **`@libre-ai/policy-core-ref`** (TypeScript) | Reference evaluator, byte-identical semantics | Same evaluation contract, for cross-checking and JS-side use                                                                    |
+| **`@libre-ai/web-platform`**                 | SSR / Bun BFF foundation                      | Request handler, accessible server-rendered document                                                                            |
+| **Contracts**                                | Locked interoperability surface               | `policy-definition.v2`, `model-snapshot.v2`, `policy-need.v2`, `policy-evaluation.v2` schemas + golden vectors + `SEMANTICS.md` |
 
-Three documents, one effective policy:
+The authorizing host passes canonical policy/snapshot/need bytes to the engine; the engine holds no token and reaches no capability. Any consumer that speaks the same contracts can drive the same evaluation.
 
-1. **Default rulebook** (`content/rulebook/rulebook.yaml`, shipped, sourced):
-   C2 → EU-27 jurisdiction or self-host; C3 → self-host only; personal data →
-   EU-27 or self-host (RGPD ch. V); health data → self-host only (RGPD
-   art. 9); per-task ranking dimensions per the Artificial Analysis indices.
-2. **Org policy** (yours, versioned in your repo): bans by origin /
-   jurisdiction / provider / licence openness, thresholds per sensitivity,
-   overrides — and deactivations of rulebook rules **with a mandatory traced
-   reason**.
-3. **Need profile** (task + purpose + sensitivity): what the business user
-   wants to do.
+## Where the work happens
 
-## Data sources and licence boundaries
+All active development is in the base repository, under:
 
-| Dataset                                                                  | Source                                                                           | Distribution                                                        |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Catalogue (identity, licences, weights, modalities)                      | Hugging Face public API                                                          | Org snapshot                                                        |
-| Governance (provider HQ country, openness class, self-hostability)       | Curated + sourced, `content/governance/`                                         | **Public, in this repo** — corrections welcome by PR                |
-| Benchmarks (intelligence/coding/agentic/math/multilingual, price, speed) | [Artificial Analysis](https://artificialanalysis.ai/) Data API, **your own key** | **Never distributed** — org-local `data/` (gitignored, CI-enforced) |
+- `apps/model-policy` — the product host (SSR cockpit, server-side evaluation)
+- `crates/policy-core` — the Rust engine and its WASM component
+- `packages/policy-core-ref` — the TypeScript reference evaluator
+- `contracts/` — the locked schemas, WIT world and golden vectors
+- [`docs/apps/model-policy.md`](https://github.com/libre-ai/libre-ai/blob/main/docs/apps/model-policy.md) — the full product brief
 
-Benchmark data © [Artificial Analysis](https://artificialanalysis.ai/) — used
-under their free-tier terms (internal use only, attribution required). This
-project ships the sync pipeline, not their data. The public demo therefore
-shows an illustrative catalogue with empty benchmark columns.
-
-## Development
-
-```sh
-cargo test --workspace          # unit, property-based, golden, e2e CLI/API
-cargo clippy --workspace --all-targets -- -D warnings
-cargo deny check                # licences (AGPL/SSPL banned), advisories
-
-# Web UI — self-hosted fonts and versioned Portal/Libre IA assets
-cd apps/web && dx build --platform web --release
-npx playwright test             # chromium + firefox + webkit
-```
-
-CI gates: fmt, clippy zero-warnings, tests, cargo-deny, blocking coverage,
-hygiene (secret smoke, no machine-local paths, no AA data committed), e2e.
-
-Design spec: `docs/superpowers/specs/2026-07-10-rumble-ai-clearance-design.md`.
-HTTP API: `docs/api.md`.
+To follow progress or contribute, open issues and pull requests in [`libre-ai/libre-ai`](https://github.com/libre-ai/libre-ai). This repository stays reserved until activation.
 
 ## License
 
-MIT
+EUPL-1.2.
