@@ -55,7 +55,7 @@ jobs:
           while IFS= read -r f; do
             [ -n "$f" ] || continue
             t="$(readlink "$f" || true)"
-            if printf '%s' "$t" | grep -qiE -e "$banned" -e "$user_pat" -e '/Users/'; then
+            if printf '%s' "$t" | grep -qiE -e "$banned" -e "$user_pat" -e '/Users/'; then # allow-local-path
               hits="${hits}${f} -> ${t} ; "
             fi
           done < <(git ls-files -s | awk -F'\t' '$1 ~ /^120000/ {print $2}')
