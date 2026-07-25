@@ -66,4 +66,13 @@ Pour suivre l'avancement ou contribuer, ouvrez issues et pull requests dans [`li
 
 ## Licence
 
-EUPL-1.2.
+Multi-licence, déclarée par chemin dans [`REUSE.toml`](REUSE.toml) et résumée dans [`LICENSE`](LICENSE) :
+
+- **EUPL-1.2** — l'espace de travail Rust, l'application web, ainsi que le rulebook exécutable et l'exemple de politique d'organisation ;
+- **Apache-2.0** — les contrats d'interopérabilité JSON Schema, les exemples d'entrées d'évaluation, les fixtures de connecteurs synthétiques et la sortie générée du design system ;
+- **CC-BY-4.0** — la documentation éditoriale, les registres de projet et le jeu de données de gouvernance curé ;
+- **termes amont** — le matériel tiers, dont les webfonts Fontsource auto-hébergées sous OFL-1.1.
+
+Les textes complets sont dans [`LICENSES/`](LICENSES). La politique à l'échelle de l'organisation fait foi et n'est pas redite ici : [`libre-ai/libre-ai/LICENSING.md`](https://github.com/libre-ai/libre-ai/blob/main/LICENSING.md). `reuse lint` verrouille chaque changement.
+
+Les révisions historiques publiées antérieurement sous MIT restent disponibles sous ces termes. Aucun octroi de licence antérieur n'est retiré.
