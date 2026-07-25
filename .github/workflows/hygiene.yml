@@ -10,6 +10,18 @@ permissions:
   contents: read
 
 jobs:
+  reuse:
+    name: REUSE compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      # Pinned tool version, run through uv: the machine doctrine bans `pip
+      # install` and manual virtualenvs. `charset-normalizer` gives the linter
+      # the encoding detection it needs on non-UTF-8 inputs.
+      - name: Lint per-path licence declarations
+        run: uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
+
   hygiene:
     name: Repository hygiene
     runs-on: ubuntu-latest
