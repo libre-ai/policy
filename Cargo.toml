@@ -16,7 +16,7 @@ edition = "2024"
 rust-version = "1.95"
 license = "MIT"
 authors = ["Constantin Jais"]
-repository = "https://github.com/constantin-jais/rumble-ai-clearance"
+repository = "https://github.com/libre-ai/policy"
 
 [workspace.dependencies]
 anyhow = "1"
