@@ -1,7 +1,11 @@
 //! Hugging Face connector: response parsing only — fetching happens at the
 //! CLI edge, tests run on recorded fixtures.
 //!
-//! Public endpoint: `GET https://huggingface.co/api/models?author=<org>&pipeline_tag=text-generation`.
+//! Public endpoint, as called by `hf_models_url`:
+//! `GET https://huggingface.co/api/models?author=<org>&pipeline_tag=text-generation&limit=100`.
+//! The cap is ours: an organisation with more than 100 listings is truncated,
+//! so a model can be absent from the snapshot — and an absent model is
+//! ineligible, never silently accepted.
 
 use serde::Deserialize;
 
