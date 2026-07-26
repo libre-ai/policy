@@ -447,7 +447,15 @@ pub fn App() -> Element {
             }
 
             if !error().is_empty() {
-                p { class: "lia-alert clearance-error", role: "alert", "{error}" }
+                // `data-tone` is the design system's own error modifier. Without
+                // it a failure renders with the default accent bar, i.e. the
+                // same green the system uses for non-error callouts.
+                p {
+                    class: "lia-alert clearance-error",
+                    role: "alert",
+                    "data-tone": "error",
+                    "{error}"
+                }
             }
 
             if let Some(result) = outcome() {

@@ -30,6 +30,12 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Test
         run: cargo test --workspace --all-targets
+      # Re-run the design-system control with output shown, so the number of
+      # stylesheets it scanned and the contrast ratios it computed are on the
+      # record. The control fails on a zero count, so a green log that reads
+      # "scanned 0" is not reachable.
+      - name: Design-system control (scan log)
+        run: cargo test -p rumble-ai-clearance-web --test design_system -- --nocapture
 
   deny:
     name: Licences and advisories

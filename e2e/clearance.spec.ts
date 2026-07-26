@@ -59,6 +59,18 @@ test("server mode rejects an empty API URL before any request", async ({ page })
     "API base URL is required in server mode",
   );
   await expect(page.getByRole("table")).toHaveCount(0);
+
+  // The failure must carry the design system's error tone. Without it the
+  // alert keeps the default accent bar — the same green the system uses for
+  // non-error callouts — so a failure would read as a neutral notice.
+  const alert = page.getByRole("alert");
+  await expect(alert).toHaveAttribute("data-tone", "error");
+  await expect(alert).toHaveCSS(
+    "border-left-color",
+    await alert.evaluate((node) =>
+      getComputedStyle(node).getPropertyValue("color").trim(),
+    ),
+  );
 });
 
 test("attribution and no-redistribution notice are always visible", async ({
