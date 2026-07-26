@@ -95,6 +95,88 @@ fn unknown_jurisdiction_on_only_path_is_indeterminate() {
 }
 
 #[test]
+fn banned_path_alongside_unknown_path_is_indeterminate_not_ineligible() {
+    // Cumulation of a definitive hosting block and an unresolved hosting
+    // path, pinned because the two outcomes are easy to confuse.
+    //
+    // Hosting-scoped rules filter deployment paths; they never disqualify
+    // the model on their own. So a banned path is promoted to a model-level
+    // violation only when it explains the *whole* failure. Here it does not:
+    // the second path may yet turn out compliant, which would make the model
+    // eligible. Announcing `Ineligible` would be a false definitive, so the
+    // verdict stays `Indeterminate` and names the datum to resolve.
+    //
+    // This is not a loss of the unfavourable finding: every hosting-scoped
+    // rule reports `MissingData` on a path whose jurisdiction is unknown, so
+    // the banning rule is still named in `missing`. What changes is the
+    // label (to resolve, not violated) — and the banned path is excluded
+    // from `viable_hostings` either way, as the third leg below shows.
+    let policy = Policy::new(vec![Rule::always(
+        "org.deny-jurisdiction-us",
+        Constraint::DenyHostingJurisdiction(vec![CountryCode::new("US")]),
+    )]);
+
+    let us_path = Hosting::api(
+        ApiKind::Provider,
+        CountryCode::new("US"),
+        CountryCode::new("US"),
+    );
+    let unknown_path = Hosting::Api {
+        kind: ApiKind::Provider,
+        country: Some(CountryCode::new("FR")),
+        jurisdiction: None,
+    };
+    let fr_path = Hosting::api(
+        ApiKind::Provider,
+        CountryCode::new("FR"),
+        CountryCode::new("FR"),
+    );
+
+    // Banned path + unresolved path: undecided, not disqualified.
+    let mixed = Model::new("acme/mixed-paths", "acme")
+        .with_origin(CountryCode::new("FR"))
+        .with_hosting(us_path.clone())
+        .with_hosting(unknown_path);
+    assert_eq!(
+        evaluate(&mixed, &policy, &any_need()),
+        Verdict::Indeterminate {
+            missing: vec![(
+                RuleId::new("org.deny-jurisdiction-us"),
+                DataDimension::HostingJurisdiction
+            )],
+        },
+        "an unresolved path keeps the model undecided: the ban removes the \
+         other path, it does not disqualify the model"
+    );
+
+    // Same ban, no unresolved path left: now it is the whole explanation.
+    let banned_only = Model::new("acme/banned-only", "acme")
+        .with_origin(CountryCode::new("FR"))
+        .with_hosting(us_path.clone());
+    assert_eq!(
+        evaluate(&banned_only, &policy, &any_need()),
+        Verdict::Ineligible {
+            violations: vec![RuleId::new("org.deny-jurisdiction-us")],
+        },
+        "with every path definitively blocked, the ban yields Ineligible"
+    );
+
+    // Unknown resolved to a compliant jurisdiction: the banned path is
+    // filtered out and never reaches a recommendation.
+    let resolved = Model::new("acme/resolved-paths", "acme")
+        .with_origin(CountryCode::new("FR"))
+        .with_hosting(us_path)
+        .with_hosting(fr_path.clone());
+    assert_eq!(
+        evaluate(&resolved, &policy, &any_need()),
+        Verdict::Eligible {
+            viable_hostings: vec![fr_path],
+        },
+        "the banned path is excluded from the viable set"
+    );
+}
+
+#[test]
 fn jurisdiction_allow_list_keeps_allowed_and_self_hosted_paths() {
     // "C2 data: EU jurisdiction or self-host" — allow-list semantics.
     let model = Model::new("mistralai/mistral-large-3", "mistralai")
