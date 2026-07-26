@@ -44,8 +44,11 @@ pub enum PolicyError {
 #[serde(deny_unknown_fields)]
 pub struct PolicyDoc {
     version: u32,
+    // Declared only so `deny_unknown_fields` accepts the key: nothing reads
+    // the value, but dropping the field would make every document that names
+    // an organisation fail to parse. Same for `RuleDoc` below.
     #[serde(default)]
-    #[allow(dead_code)] // Displayed by tooling; not used in compilation.
+    #[allow(dead_code)]
     organization: Option<String>,
     #[serde(default)]
     disable_rules: Vec<DisableDoc>,
@@ -70,11 +73,15 @@ struct DisableDoc {
 #[serde(deny_unknown_fields)]
 struct RuleDoc {
     id: String,
+    // Prose and citation backing the rule. Both are declared only so
+    // `deny_unknown_fields` accepts the keys the shipped rulebook carries;
+    // neither is read, because the compiled policy attributes verdicts by
+    // rule id and the justification stays in the versioned document.
     #[serde(default)]
-    #[allow(dead_code)] // Displayed by tooling; not used in compilation.
+    #[allow(dead_code)]
     description: Option<String>,
     #[serde(default)]
-    #[allow(dead_code)] // Citation backing the rule; displayed by tooling.
+    #[allow(dead_code)]
     source: Option<String>,
     /// `always` as a plain string, scoped variants as a one-key map
     /// (`sensitivity_at_least: c2`).

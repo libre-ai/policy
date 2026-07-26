@@ -56,3 +56,9 @@ jobs:
             echo "::error::data/ must never be committed (AA no-redistribution terms)"
             exit 1
           fi
+      # Wired into this already-required job on purpose: a check that only runs
+      # in a new workflow is not a required check, so a red one still merges.
+      # The script prints its scanned-file and extracted-comment counts, and
+      # fails on either being zero, so an inert run cannot read as green.
+      - name: Comment hygiene
+        run: ./scripts/check-comment-hygiene.sh
