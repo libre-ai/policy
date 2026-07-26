@@ -45,6 +45,20 @@ jobs:
       - uses: EmbarkStudios/cargo-deny-action@bb137d7af7e4fb67e5f82a49c4fce4fad40782fe # v2
         with:
           command: check
+      # Hosted toolchain rather than the runner's preinstalled one, so the
+      # metadata this control reads is pinned like every other Rust job here.
+      - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      # Deliberately wired into this already-required job rather than a new
+      # workflow: a check that only exists in a new workflow is not a required
+      # check, so a red one still merges and the gate is decorative. This is
+      # also its subject-matter home — cargo-deny above vets the licences of
+      # *dependencies*, this step vets the licence this workspace declares for
+      # *itself*, which cargo-deny cannot see once first-party crates are
+      # skipped. It prints the number of manifests examined and exits 2 rather
+      # than 0 when it cannot search, so an inert run cannot read as green.
+      - name: Manifest licence matches the effective licence
+        run: ./scripts/check-licence-declaration.sh
 
   coverage:
     name: Coverage gate
