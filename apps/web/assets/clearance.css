@@ -12,7 +12,9 @@
 
 .clearance-app h1 {
   margin-block: var(--space-2) var(--space-4);
-  font-size: clamp(38px, 7vw, 72px);
+  /* rem, not px: the heading must scale with the reader's font-size setting.
+     Identical rendering at the 16px default (2.375rem = 38px, 4.5rem = 72px). */
+  font-size: clamp(2.375rem, 7vw, 4.5rem);
 }
 
 .clearance-kicker {
@@ -104,7 +106,9 @@
   margin-top: var(--space-3);
 }
 
-@media (max-width: 640px) {
+/* em, not px: a media-query em is the reader's default font size, so the
+   single-column switch tracks font scaling. 40em = 640px at the default. */
+@media (max-width: 40em) {
   .clearance-select,
   .clearance-selects .lia-button {
     width: 100%;
