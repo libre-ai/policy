@@ -8,6 +8,12 @@ ignore = []
 [licenses]
 version = 2
 confidence-threshold = 0.8
+# Skip the workspace's own crates, which are `publish = false`. Their licence is
+# EUPL-1.2, governed by REUSE.toml and checked by scripts/check-licence-declaration.sh.
+# Scoping the exemption to unpublished first-party crates keeps `allow` below a
+# statement about *third-party* code only: adding "EUPL-1.2" there instead would
+# silently accept a copyleft dependency pulled from crates.io.
+private = { ignore = true }
 allow = [
   "MIT",
   "Apache-2.0",
