@@ -14,7 +14,17 @@ members = [
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.95"
-license = "MIT"
+# Matches the licence REUSE.toml actually applies to `crates/**` and `apps/**`.
+# The field previously read "MIT", which granted, to anyone reading the
+# manifest, permissions the code does not carry. See LICENSE: MIT survives only
+# as a historical grant on revisions published before the licensing transition.
+license = "EUPL-1.2"
+# The implementation here is frozen for reference (AGENTS.md) and no crate has
+# ever been published: none of the seven names exists on crates.io. Marking the
+# workspace unpublishable removes any chance of an accidental `cargo publish`
+# announcing terms that do not match the code, and lets `cargo deny` skip
+# first-party crates instead of widening the third-party allow-list.
+publish = false
 authors = ["Constantin Jais"]
 repository = "https://github.com/libre-ai/policy"
 
