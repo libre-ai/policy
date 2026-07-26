@@ -2,7 +2,7 @@
   "name": "@libre-ai/policy-core-ref",
   "version": "2.0.0",
   "description": "TypeScript reference evaluator for policy-core-v2 — byte-identical semantics, RFC 8785 JCS + SHA-256 digests, 144-vector conformance.",
-  "license": "Apache-2.0",
+  "license": "EUPL-1.2",
   "types": "./src/index.ts",
   "files": [
     "src",
