@@ -174,9 +174,26 @@ pub fn evaluate(model: &Model, policy: &Policy, need: &NeedProfile) -> Verdict {
     }
 
     if viable_hostings.is_empty() {
-        // Fail-closed: no compliant deployment path. Definitive blocks yield
-        // Ineligible; unknowns yield Indeterminate; a model with no
+        // Fail-closed: no compliant deployment path. A model with no
         // documented path at all is missing data, never eligible.
+        //
+        // Otherwise the unknown dominates the block, which is the opposite
+        // of the model-scoped precedence above and deliberate: hosting rules
+        // remove paths, they do not disqualify the model. Blockers are
+        // promoted to model-level violations only when they explain the
+        // whole failure — i.e. when no path is left unresolved. If one is,
+        // "no compliant path exists" is not established (that path may yet
+        // prove compliant), so announcing Ineligible would be a definitive
+        // the engine cannot support; Indeterminate names the datum to
+        // resolve instead.
+        //
+        // Dropping `hosting_blockers` here loses no rule: both hosting-scoped
+        // constraints resolve through `check_jurisdiction`, so a path of
+        // unknown jurisdiction reports MissingData for every one of them and
+        // a blocking rule is still named in `missing` — only its label
+        // changes. The blocked path stays out of `viable_hostings` either
+        // way. Pinned by the engine test
+        // `banned_path_alongside_unknown_path_is_indeterminate_not_ineligible`.
         if model.hostings.is_empty() {
             missing.push((RuleId::builtin_hosting_paths(), DataDimension::HostingPaths));
         } else if hosting_missing.is_empty() {
