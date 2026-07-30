@@ -1,6 +1,6 @@
 wit_bindgen::generate!({
     world: "policy-core",
-    path: "../../contracts/wit/policy-core-v1",
+    path: "../../vendored/wit/policy-core-v1",
 });
 
 use self::exports::libre_ai::policy_core::api as wit_api;

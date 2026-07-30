@@ -17,8 +17,12 @@
     "test:product-phases:coverage": "bun test --coverage tools/check-product-phases.test.ts"
   },
   "dependencies": {
-    "@libre-ai/web-platform": "workspace:*",
-    "react": "catalog:",
-    "react-dom": "catalog:"
+    "@libre-ai/web-platform": "github:libre-ai/web-platform#a0754b69b4205e31a0c560f9729bd8d2d8556357",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
   }
 }

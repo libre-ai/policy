@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import Ajv2020, { type AnySchema, type ErrorObject, type ValidateFunction } from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 
-import { containsSensitivePublicMarker } from "../../../tools/quality/public-source-scanner";
+import { containsSensitivePublicMarker } from "../../../node_modules/@libre-ai/governance/tools/quality/public-source-scanner";
 
 export type EvidenceLevel = "declared" | "implemented" | "verified" | "qualified" | "in_service";
 export type ReviewRole =

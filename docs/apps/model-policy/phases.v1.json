@@ -1,0 +1,478 @@
+{
+  "schemaVersion": "libre-ai.model-policy-phases.v1",
+  "documentStatus": "draft",
+  "statusAuthorities": {
+    "program": "GOALS.md",
+    "execution": "STATUS.md"
+  },
+  "updatedAt": "2026-07-28T00:00:00Z",
+  "phases": [
+    {
+      "id": "MP-P0",
+      "title": "Foundation of authority",
+      "outcome": "Establish the sourced facts, approved rules, and deterministic evaluator required by every later phase.",
+      "document": "docs/apps/model-policy/phases/00-foundation.md",
+      "dependsOn": [],
+      "requiredIndependentReviewRoles": ["architecture", "business", "security", "technical"],
+      "gates": [
+        {
+          "id": "MP-P0-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P0-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P0-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P0-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P0-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P0-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P0-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path"
+      ]
+    },
+    {
+      "id": "MP-P1",
+      "title": "Deterministic qualification",
+      "outcome": "Let a business user qualify a use case and inspect deterministic policy verdicts for deployment configurations without any LLM.",
+      "document": "docs/apps/model-policy/phases/01-deterministic-qualification.md",
+      "dependsOn": ["MP-P0"],
+      "requiredIndependentReviewRoles": [
+        "accessibility",
+        "business",
+        "privacy",
+        "security",
+        "technical"
+      ],
+      "gates": [
+        {
+          "id": "MP-P1-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P1-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P1-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P1-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P1-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P1-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P1-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P1-G08",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path",
+        "Every dependency phase has owner-accepted evidence in the global execution authorities"
+      ]
+    },
+    {
+      "id": "MP-P2",
+      "title": "Optional LLM assistance",
+      "outcome": "Pre-fill and challenge the deterministic tunnel while keeping every AI suggestion non-authoritative.",
+      "document": "docs/apps/model-policy/phases/02-llm-assistance.md",
+      "dependsOn": ["MP-P1"],
+      "requiredIndependentReviewRoles": ["business", "privacy", "security", "technical"],
+      "gates": [
+        {
+          "id": "MP-P2-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P2-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P2-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P2-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P2-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P2-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P2-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path",
+        "Every dependency phase has owner-accepted evidence in the global execution authorities",
+        "Required contract, threat-model, specification, and ADR amendments are owner-reviewed before implementation"
+      ]
+    },
+    {
+      "id": "MP-P3",
+      "title": "Organization governance",
+      "outcome": "Translate an organization's doctrine into approved, versioned policies and bounded exceptions.",
+      "document": "docs/apps/model-policy/phases/03-organization-governance.md",
+      "dependsOn": ["MP-P1"],
+      "requiredIndependentReviewRoles": [
+        "architecture",
+        "business",
+        "privacy",
+        "security",
+        "technical"
+      ],
+      "gates": [
+        {
+          "id": "MP-P3-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P3-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P3-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P3-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P3-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P3-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P3-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path",
+        "Every dependency phase has owner-accepted evidence in the global execution authorities",
+        "Required contract, threat-model, specification, and ADR amendments are owner-reviewed before implementation"
+      ]
+    },
+    {
+      "id": "MP-P4",
+      "title": "Continuous monitoring",
+      "outcome": "Re-evaluate use cases when model, provider, policy, evidence, or engine facts change.",
+      "document": "docs/apps/model-policy/phases/04-continuous-monitoring.md",
+      "dependsOn": ["MP-P3"],
+      "requiredIndependentReviewRoles": ["architecture", "privacy", "security", "technical"],
+      "gates": [
+        {
+          "id": "MP-P4-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P4-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P4-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P4-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P4-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "verified"
+        },
+        {
+          "id": "MP-P4-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P4-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path",
+        "Every dependency phase has owner-accepted evidence in the global execution authorities",
+        "Required contract, threat-model, specification, and ADR amendments are owner-reviewed before implementation"
+      ]
+    },
+    {
+      "id": "MP-P5",
+      "title": "Access profiles and gateway",
+      "outcome": "Enforce approved model routes through revocable access profiles without exposing provider secrets.",
+      "document": "docs/apps/model-policy/phases/05-access-gateway.md",
+      "dependsOn": ["MP-P4"],
+      "requiredIndependentReviewRoles": [
+        "architecture",
+        "performance",
+        "privacy",
+        "security",
+        "technical"
+      ],
+      "gates": [
+        {
+          "id": "MP-P5-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P5-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P5-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P5-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P5-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P5-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P5-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P5-G08",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path",
+        "Every dependency phase has owner-accepted evidence in the global execution authorities",
+        "Required contract, threat-model, specification, and ADR amendments are owner-reviewed before implementation"
+      ]
+    },
+    {
+      "id": "MP-P6",
+      "title": "Activity cockpit",
+      "outcome": "Pilot evidence health, policy state, access, operations, cost, usage, and incidents without model-quality ranking or compliance scoring.",
+      "document": "docs/apps/model-policy/phases/06-activity-cockpit.md",
+      "dependsOn": ["MP-P4", "MP-P5"],
+      "requiredIndependentReviewRoles": [
+        "accessibility",
+        "business",
+        "performance",
+        "privacy",
+        "security",
+        "technical"
+      ],
+      "gates": [
+        {
+          "id": "MP-P6-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P6-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P6-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P6-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P6-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P6-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P6-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P6-G08",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path",
+        "Every dependency phase has owner-accepted evidence in the global execution authorities",
+        "Required contract, threat-model, specification, and ADR amendments are owner-reviewed before implementation"
+      ]
+    },
+    {
+      "id": "MP-P7",
+      "title": "Managed service",
+      "outcome": "Operate model-policy control under an organization's approved doctrine and explicit service commitments.",
+      "document": "docs/apps/model-policy/phases/07-managed-service.md",
+      "dependsOn": ["MP-P6"],
+      "requiredIndependentReviewRoles": [
+        "architecture",
+        "business",
+        "legal",
+        "operations",
+        "performance",
+        "privacy",
+        "security",
+        "technical"
+      ],
+      "gates": [
+        {
+          "id": "MP-P7-G01",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P7-G02",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P7-G03",
+          "evidence": [],
+          "requiredEvidenceLevel": "in_service"
+        },
+        {
+          "id": "MP-P7-G04",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P7-G05",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P7-G06",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P7-G07",
+          "evidence": [],
+          "requiredEvidenceLevel": "qualified"
+        },
+        {
+          "id": "MP-P7-G08",
+          "evidence": [],
+          "requiredEvidenceLevel": "in_service"
+        }
+      ],
+      "activationPrerequisites": [
+        "GOALS.md records explicit Model Policy owner selection",
+        "STATUS.md records activation of the Model Policy wave 4b milestone",
+        "An accepted bounded work package authorizes every implementation and shared-authority write path",
+        "Every dependency phase has owner-accepted evidence in the global execution authorities",
+        "Required contract, threat-model, specification, and ADR amendments are owner-reviewed before implementation"
+      ]
+    }
+  ]
+}

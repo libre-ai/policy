@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libre-ai.fr/schemas/model-policy-operational-evidence.v1.schema.json",
+  "title": "Libre AI Model Policy operational evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "operationalEvidenceId",
+    "kind",
+    "phaseId",
+    "gateId",
+    "evidenceId",
+    "deploymentIdentity",
+    "windowStartedAt",
+    "windowEndedAt",
+    "outcome",
+    "recordedAt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "libre-ai.model-policy-operational-evidence.v1" },
+    "operationalEvidenceId": {
+      "type": "string",
+      "pattern": "^MP-OPS-[A-Z0-9][A-Z0-9-]{2,63}$"
+    },
+    "kind": {
+      "enum": ["deployment_authorization", "smoke_test", "rollback_test", "incident_report"]
+    },
+    "phaseId": { "type": "string", "pattern": "^MP-P[0-9]+$" },
+    "gateId": { "type": "string", "pattern": "^MP-P[0-9]+-G[0-9]{2}$" },
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^MP-EVD-[A-Z0-9][A-Z0-9-]{2,63}$"
+    },
+    "deploymentIdentity": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$"
+    },
+    "windowStartedAt": { "$ref": "#/$defs/zuluDateTime" },
+    "windowEndedAt": { "$ref": "#/$defs/zuluDateTime" },
+    "outcome": { "enum": ["authorized", "passed", "resolved"] },
+    "authorizationRef": { "$ref": "#/$defs/opaqueActorRef" },
+    "observedAt": { "$ref": "#/$defs/zuluDateTime" },
+    "incidentId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]+$"
+    },
+    "recordedAt": { "$ref": "#/$defs/zuluDateTime" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "kind": { "const": "deployment_authorization" } },
+        "required": ["kind"]
+      },
+      "then": {
+        "properties": {
+          "outcome": { "const": "authorized" },
+          "authorizationRef": { "$ref": "#/$defs/opaqueActorRef" },
+          "observedAt": false,
+          "incidentId": false
+        },
+        "required": ["authorizationRef"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "kind": { "enum": ["smoke_test", "rollback_test"] } },
+        "required": ["kind"]
+      },
+      "then": {
+        "properties": {
+          "outcome": { "const": "passed" },
+          "authorizationRef": false,
+          "observedAt": { "$ref": "#/$defs/zuluDateTime" },
+          "incidentId": false
+        },
+        "required": ["observedAt"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "kind": { "const": "incident_report" } },
+        "required": ["kind"]
+      },
+      "then": {
+        "properties": {
+          "outcome": { "const": "resolved" },
+          "authorizationRef": false,
+          "observedAt": { "$ref": "#/$defs/zuluDateTime" },
+          "incidentId": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]+$"
+          }
+        },
+        "required": ["observedAt", "incidentId"]
+      }
+    }
+  ],
+  "$defs": {
+    "opaqueActorRef": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]+$"
+    },
+    "zuluDateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    }
+  }
+}

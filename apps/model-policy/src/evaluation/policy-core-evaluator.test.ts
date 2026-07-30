@@ -40,7 +40,7 @@ const artifactBuilt = existsSync(resolve(generatedDirectory, "policy-core.js"));
 
 const golden = artifactBuilt
   ? ((await Bun.file(
-      resolve(import.meta.dir, "../../../../contracts/fixtures/policy-core-v2/golden.json"),
+      resolve(import.meta.dir, "../../../../node_modules/@libre-ai/contracts-authority/contracts/fixtures/policy-core-v2/golden.json"),
     ).json()) as {
       cases: Array<{
         id: string;

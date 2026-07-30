@@ -29,7 +29,7 @@ interface OperatorsFile {
 }
 
 // Load fixture data synchronously at file parse time
-const operatorsContent = readFileSync("contracts/fixtures/policy-core-v2/operators.json", "utf8");
+const operatorsContent = readFileSync(new URL("../../../../node_modules/@libre-ai/contracts-authority/contracts/fixtures/policy-core-v2/operators.json", import.meta.url), "utf8");
 const operatorsData: OperatorsFile = JSON.parse(operatorsContent);
 const operatorVectors = operatorsData.vectors;
 const aggregationVectors = operatorsData.aggregationVectors;

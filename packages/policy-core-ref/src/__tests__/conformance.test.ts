@@ -24,7 +24,7 @@ interface GoldenFile {
 let goldenVectors: GoldenCase[] = [];
 
 beforeAll(async () => {
-  const goldenContent = await readFile("contracts/fixtures/policy-core-v2/golden.json", "utf8");
+  const goldenContent = await readFile(new URL("../../../../node_modules/@libre-ai/contracts-authority/contracts/fixtures/policy-core-v2/golden.json", import.meta.url), "utf8");
   const golden: GoldenFile = JSON.parse(goldenContent);
   goldenVectors = golden.cases;
 });

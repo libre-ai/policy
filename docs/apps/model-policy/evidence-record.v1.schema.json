@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://libre-ai.fr/schemas/model-policy-evidence-record.v1.schema.json",
+  "title": "Libre AI Model Policy gate evidence record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "evidenceId",
+    "phaseId",
+    "gateId",
+    "gateDefinitionSha256",
+    "assertion",
+    "achievedEvidenceLevel",
+    "sourceCommit",
+    "evidenceProducerRef",
+    "artifactDigests",
+    "toolVersions",
+    "inputIdentities",
+    "commands",
+    "expectedResults",
+    "observedResults",
+    "findings",
+    "verdict",
+    "reviewBindings",
+    "harnessIdentifiers",
+    "invalidationConditions",
+    "recordedAt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "libre-ai.model-policy-evidence-record.v1" },
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^MP-EVD-[A-Z0-9][A-Z0-9-]{2,63}$"
+    },
+    "phaseId": { "type": "string", "pattern": "^MP-P[0-9]+$" },
+    "gateId": { "type": "string", "pattern": "^MP-P[0-9]+-G[0-9]{2}$" },
+    "gateDefinitionSha256": { "$ref": "#/$defs/sha256" },
+    "assertion": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "achievedEvidenceLevel": {
+      "enum": ["declared", "implemented", "verified", "qualified", "in_service"]
+    },
+    "sourceCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "evidenceProducerRef": { "$ref": "#/$defs/opaqueActorRef" },
+    "artifactDigests": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/digestedPath" }
+    },
+    "toolVersions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/toolVersion" }
+    },
+    "inputIdentities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/inputIdentity" }
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "type": "string", "minLength": 1, "maxLength": 2000 }
+    },
+    "expectedResults": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "type": "string", "minLength": 1, "maxLength": 2000 }
+    },
+    "observedResults": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "type": "string", "minLength": 1, "maxLength": 2000 }
+    },
+    "findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocking", "major", "minor", "residual"],
+      "properties": {
+        "blocking": { "$ref": "#/$defs/findingList" },
+        "major": { "$ref": "#/$defs/findingList" },
+        "minor": { "$ref": "#/$defs/findingList" },
+        "residual": { "$ref": "#/$defs/findingList" }
+      }
+    },
+    "verdict": {
+      "enum": ["approve", "approve_with_minor_reservations", "reject", "not_applicable"]
+    },
+    "reviewBindings": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/reviewBinding" }
+    },
+    "harnessIdentifiers": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 256 }
+    },
+    "serviceObservation": { "$ref": "#/$defs/serviceObservation" },
+    "invalidationConditions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    },
+    "recordedAt": { "$ref": "#/$defs/zuluDateTime" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "achievedEvidenceLevel": { "enum": ["verified", "qualified", "in_service"] }
+        },
+        "required": ["achievedEvidenceLevel"]
+      },
+      "then": {
+        "properties": {
+          "harnessIdentifiers": { "type": "array", "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "achievedEvidenceLevel": { "enum": ["qualified", "in_service"] }
+        },
+        "required": ["achievedEvidenceLevel"]
+      },
+      "then": {
+        "properties": {
+          "verdict": { "not": { "const": "not_applicable" } },
+          "reviewBindings": { "type": "array", "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "achievedEvidenceLevel": { "const": "in_service" }
+        },
+        "required": ["achievedEvidenceLevel"]
+      },
+      "then": {
+        "properties": {
+          "serviceObservation": { "$ref": "#/$defs/serviceObservation" }
+        },
+        "required": ["serviceObservation"]
+      }
+    }
+  ],
+  "$defs": {
+    "repositoryPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"
+    },
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "zuluDateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "opaqueActorRef": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]+$"
+    },
+    "reviewRole": {
+      "enum": [
+        "accessibility",
+        "architecture",
+        "business",
+        "legal",
+        "operations",
+        "performance",
+        "privacy",
+        "security",
+        "technical"
+      ]
+    },
+    "digestedPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "toolVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._+/-]*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "not": { "enum": ["latest", "unknown", "unversioned"] }
+        }
+      }
+    },
+    "inputIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "identifier", "sha256"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "repository_fixture",
+            "synthetic_corpus",
+            "restricted_corpus",
+            "operated_environment"
+          ]
+        },
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$"
+        },
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "repository_fixture" } },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": { "path": { "$ref": "#/$defs/repositoryPath" } },
+            "required": ["path"]
+          },
+          "else": { "properties": { "path": false } }
+        }
+      ]
+    },
+    "reviewBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "reviewerRef", "attestationRecord", "sha256"],
+      "properties": {
+        "role": { "$ref": "#/$defs/reviewRole" },
+        "reviewerRef": { "$ref": "#/$defs/opaqueActorRef" },
+        "attestationRecord": {
+          "type": "string",
+          "pattern": "^distribution/evidence/model-policy/reviews/[A-Za-z0-9._/-]+\\.json$"
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "serviceObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deploymentIdentity",
+        "windowStartedAt",
+        "windowEndedAt",
+        "authorizationEvidencePath",
+        "authorizationEvidenceSha256",
+        "smokeEvidencePath",
+        "smokeEvidenceSha256",
+        "rollbackEvidencePath",
+        "rollbackEvidenceSha256",
+        "incidentState",
+        "incidentEvidence"
+      ],
+      "properties": {
+        "deploymentIdentity": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]+$"
+        },
+        "windowStartedAt": { "$ref": "#/$defs/zuluDateTime" },
+        "windowEndedAt": { "$ref": "#/$defs/zuluDateTime" },
+        "authorizationEvidencePath": { "$ref": "#/$defs/operationalEvidencePath" },
+        "authorizationEvidenceSha256": { "$ref": "#/$defs/sha256" },
+        "smokeEvidencePath": { "$ref": "#/$defs/operationalEvidencePath" },
+        "smokeEvidenceSha256": { "$ref": "#/$defs/sha256" },
+        "rollbackEvidencePath": { "$ref": "#/$defs/operationalEvidencePath" },
+        "rollbackEvidenceSha256": { "$ref": "#/$defs/sha256" },
+        "incidentState": { "enum": ["none_observed", "incidents_bound_in_artifacts"] },
+        "incidentEvidence": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/operationalDigestedPath" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "incidentState": { "const": "incidents_bound_in_artifacts" } },
+            "required": ["incidentState"]
+          },
+          "then": {
+            "properties": { "incidentEvidence": { "type": "array", "minItems": 1 } }
+          },
+          "else": {
+            "properties": { "incidentEvidence": { "type": "array", "maxItems": 0 } }
+          }
+        }
+      ]
+    },
+    "operationalEvidencePath": {
+      "type": "string",
+      "pattern": "^distribution/evidence/model-policy/operations/[A-Za-z0-9._/-]+\\.json$"
+    },
+    "operationalDigestedPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/operationalEvidencePath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "findingList": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "type": "string", "minLength": 1, "maxLength": 2000 }
+    }
+  }
+}

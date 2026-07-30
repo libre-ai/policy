@@ -10,7 +10,7 @@ fn test_conformance_golden_vectors() {
     // never a hardcoded absolute path.
     let golden_path = concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../contracts/fixtures/policy-core-v2/golden.json"
+        "/../../node_modules/@libre-ai/contracts-authority/contracts/fixtures/policy-core-v2/golden.json"
     );
     let golden_content = fs::read_to_string(golden_path).expect("Failed to read golden.json");
     let golden: serde_json::Value =

@@ -1,0 +1,20 @@
+package libre-ai:policy-core@1.0.0;
+
+interface api {
+  record contract-error {
+    code: string,
+    message: string,
+  }
+
+  /// Evaluates policy-definition.v2, model-snapshot.v2 and policy-need.v2 JSON bytes.
+  /// SEMANTICS.md is normative for validation, operators, freshness, ordering and hashes.
+  /// Current time is explicit input and no host capability is imported.
+  evaluate: func(policy: list<u8>, snapshot: list<u8>, need: list<u8>, evaluated-at: string) -> result<list<u8>, contract-error>;
+}
+
+/// Capability-free deterministic policy evaluation.
+/// The component has no host imports: in particular no clock, randomness,
+/// network, filesystem, key/value store, environment, or logging capability.
+world policy-core {
+  export api;
+}
