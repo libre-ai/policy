@@ -3,6 +3,10 @@
   "private": true,
   "license": "EUPL-1.2",
   "type": "module",
+  "exports": {
+    ".": "./packages/policy-core-ref/src/index.ts"
+  },
+  "types": "./packages/policy-core-ref/src/index.ts",
   "packageManager": "bun@1.4.0-canary.1",
   "engines": {
     "bun": ">=1.4.0"
