@@ -1,0 +1,90 @@
+# Fiche d'état du projet — autorité de l'état depuis ADR-0020 (design §6.2).
+# La section statut du README est générée depuis cette fiche (sentinelles),
+# jamais éditée à la main ; l'avancement est calculé, jamais déclaré.
+schema_version: libre-ai.project.v1
+project: model-policy
+repository: libre-ai/policy
+kind: product
+layer: couche-1
+statement:
+  for: "les équipes qui veulent employer des modèles d'IA en respectant leur politique de sécurité"
+  who_faces: "des choix de modèles opaques, impossibles à justifier auprès de la sécurité ou d'un auditeur"
+  enables: "vérifier qu'un besoin métier peut employer un modèle donné, avec un verdict explicable"
+  producing:
+    - "des verdicts d'habilitation explicables, rejouables et conformes à la référence"
+  without_depending_on:
+    - "aucun scoring opaque, aucune donnée envoyée à des tiers"
+summary: "Habilitation de sécurité pour modèles d'IA — verdicts explicables contre la politique de l'organisation (couche 1)."
+current_situation: >-
+  L'application Model Policy et le crate policy-core (frontière WIT vendorée, implémentation de référence policy-core-ref exposée à la constellation) sont greffés et verts ; le plan de livraison par phases (docs/apps/model-policy) voyage avec le produit, ses phases restent à exécuter.
+scope:
+  - "correspondance besoin métier ↔ politique de sécurité"
+  - "verdicts explicables et rejouables"
+  - "implémentation de référence byte-exacte (policy-core-ref)"
+non_goals:
+  - "scoring opaque"
+  - "évaluation de modèles hors politique déclarée"
+dependencies:
+  - on: libre-ai/web-platform
+    why: "socle applicatif Bun.serve + React"
+    pinned: "git-dep épinglée par SHA dans le manifest de ce repo"
+  - on: libre-ai/contracts
+    why: "autorité des contrats, fixtures de conformité"
+    pinned: "git-dep épinglée par SHA dans le manifest de ce repo"
+  - on: libre-ai/governance
+    why: "gabarit de flotte et gates de qualité"
+    pinned: "git-dep épinglée par SHA dans le manifest de ce repo"
+maturity: usable
+confidence: medium
+exposure: spec-published
+freshness:
+  last_verified_on: "2026-07-30"
+hypothesis: >
+  Deny-by-default, deterministic policy evaluation over immutable model
+  snapshots — zero network during evaluation — covers registry-class
+  model governance better than leaderboard- or routing-centric registries.
+evidence_required:
+  - parity audit against the 68-feature HuggingFace+OpenRouter map (docs/parity/audits/PARITY-modelpolicy-registries.md)
+  - golden vectors green byte-exact on both Rust and WASM targets
+  - the 7 ABSENT-T1 items closed with the quantified T1 operators (training_flops, license allowlist, region_in)
+promotion_criteria:
+  - to: usable-verifiable
+    when: covered traits >= 40 of 68 (baseline 18) and unknown-attribute evaluation proven indeterminate-fail-closed
+  - to: proven
+    when: covered traits >= 50 of 68 across two consecutive parity audits
+kill_predicates:
+  - id: parity-stagnation
+    predicate: covered_traits < 30 of 68
+    window: two consecutive parity audits after wave-4 activation
+    source: docs/parity/audits/PARITY-modelpolicy-registries.md
+  - id: determinism-breach
+    predicate: any network call observed during policy evaluation
+    source: docs/parity/audits/PARITY-modelpolicy-registries.md
+benchmark:
+  product: Model registries — model registry / model-card governance class (e.g. Hugging Face Hub)
+scope_stability: stable
+phases:
+  - id: activation
+    title: Activation multi-repo (γ 3.5)
+    exit_criteria:
+      - id: graft-green
+        text: Contenu greffé depuis le hub avec son histoire, workspace autonome vert en CI réelle, description dégelée.
+        weight: 2
+        status: accepted
+        evidence:
+          date: "2026-07-30"
+          reference: "gate-acceptance-log 2026-07-30 (ligne 3.5), PR hub #286"
+  - id: delivery-phases
+    title: Plan de livraison par phases
+    exit_criteria:
+      - id: delivery-phases-done
+        text: Les phases du plan docs/apps/model-policy/phases.v1.json (qualification déterministe, puis assistance LLM) sont acceptées avec leurs preuves.
+        weight: 4
+        status: pending
+  - id: exposure
+    title: Exposition vérifiable
+    exit_criteria:
+      - id: promotion-met
+        text: Les conditions de promotion vers usable-verifiable déclarées par cette fiche (promotion_criteria) sont réunies et vérifiées.
+        weight: 4
+        status: pending
