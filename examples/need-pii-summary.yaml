@@ -1,6 +1,0 @@
-# Business need: summarising documents that contain personal data,
-# classified confidential (C2). The default rulebook then requires an EU-27
-# jurisdiction or self-hosting.
-task: summary_extraction
-purpose: personal_data
-sensitivity: c2
