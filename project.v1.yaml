@@ -16,7 +16,7 @@ statement:
     - "aucun scoring opaque, aucune donnée envoyée à des tiers"
 summary: "Habilitation de sécurité pour modèles d'IA — verdicts explicables contre la politique de l'organisation (couche 1)."
 current_situation: >-
-  L'application Model Policy et le crate policy-core (frontière WIT vendorée, implémentation de référence policy-core-ref exposée à la constellation) sont greffés et verts ; le plan de livraison par phases (docs/apps/model-policy) voyage avec le produit, ses phases restent à exécuter.
+  L'application Model Policy et le crate policy-core (frontière WIT vendorée, implémentation de référence policy-core-ref exposée à la constellation) sont greffés et verts. Séquencement acté par arbitrage owner 2026-08-18 : la Phase B (dogfooding flotte) précède toute Phase C (service managé externe, plan MP-P0→P7 conservé tel quel). Le verdict K4 de l'issue hub #270 (libre-ai/libre-ai#270, non fermable — hub archivé) a été vérifié action par action contre le code actuel de check-product-phases.ts ; trois dettes restent ouvertes (digest requiredEvidenceLevel, décodage Markdown non fatal/non capé, absence de revue sécurité/vie privée du mécanisme), consignées dans docs/evidence/2026-08-18-hub-270-verification.md.
 scope:
   - "correspondance besoin métier ↔ politique de sécurité"
   - "verdicts explicables et rejouables"
@@ -38,7 +38,7 @@ maturity: usable
 confidence: medium
 exposure: spec-published
 freshness:
-  last_verified_on: "2026-07-30"
+  last_verified_on: "2026-08-18"
 hypothesis: >
   Deny-by-default, deterministic policy evaluation over immutable model
   snapshots — zero network during evaluation — covers registry-class
@@ -47,11 +47,19 @@ evidence_required:
   - parity audit against the 68-feature HuggingFace+OpenRouter map (docs/parity/audits/PARITY-modelpolicy-registries.md)
   - golden vectors green byte-exact on both Rust and WASM targets
   - the 7 ABSENT-T1 items closed with the quantified T1 operators (training_flops, license allowlist, region_in)
+  - fleet dogfooding (Phase B, B1-B3) accepted before any Phase C (managed-service) promotion claim
 promotion_criteria:
   - to: usable-verifiable
-    when: covered traits >= 40 of 68 (baseline 18) and unknown-attribute evaluation proven indeterminate-fail-closed
+    when: >-
+      Phase B (fleet-dogfooding) exit criteria B1-B3 are accepted, including a real
+      evidence record on at least one MP-P0/MP-P1 gate, and covered traits >= 40 of 68
+      (baseline 18) with unknown-attribute evaluation proven indeterminate-fail-closed
   - to: proven
-    when: covered traits >= 50 of 68 across two consecutive parity audits
+    when: >-
+      covered traits >= 50 of 68 across two consecutive parity audits, with the B2
+      contract (policy-core verdict informing the K1 capability_scope Biscuit
+      emission, never a guard) accepted and operated without deviation from the
+      TOOL-CALL-RISK lesson
 kill_predicates:
   - id: parity-stagnation
     predicate: covered_traits < 30 of 68
@@ -60,6 +68,10 @@ kill_predicates:
   - id: determinism-breach
     predicate: any network call observed during policy evaluation
     source: docs/parity/audits/PARITY-modelpolicy-registries.md
+  - id: dogfooding-stall
+    predicate: no MP-P0/MP-P1 gate carries a real evidence record (B3) one milestone after Phase B activation
+    window: one milestone after fleet-dogfooding activation
+    source: docs/evidence/2026-08-18-hub-270-verification.md
 benchmark:
   product: Model registries — model registry / model-card governance class (e.g. Hugging Face Hub)
 scope_stability: stable
@@ -74,10 +86,60 @@ phases:
         evidence:
           date: "2026-07-30"
           reference: "gate-acceptance-log 2026-07-30 (ligne 3.5), PR hub #286"
-  - id: delivery-phases
-    title: Plan de livraison par phases
+  - id: fleet-dogfooding
+    title: Phase B — dogfooding flotte (avant tout service managé externe)
+    note: >-
+      Séquencement acté par arbitrage owner 2026-08-18 : la flotte s'équipe elle-même
+      avant toute Phase C externe (pattern « parity/gates after dogfooding »). Le
+      verdict K4 de l'issue hub libre-ai/libre-ai#270 a été vérifié action par action
+      contre le code actuel de check-product-phases.ts et consigné dans
+      docs/evidence/2026-08-18-hub-270-verification.md ; B3 est la première preuve
+      d'exécution qui exercera réellement les chemins sourceCommit/requiredEvidenceLevel
+      que ce document documente comme morts aujourd'hui (0 référence d'évidence sur les
+      60 gates de phases.v1.json).
     exit_criteria:
-      - id: delivery-phases-done
+      - id: b0-hub270-k4-verified
+        text: >-
+          Les actions du verdict K4 (issue hub #270) sont vérifiées une par une contre
+          le code actuel de check-product-phases.ts et consignées (couvert avec preuve /
+          dette nommée) dans docs/evidence/2026-08-18-hub-270-verification.md.
+        weight: 1
+        status: accepted
+        evidence:
+          date: "2026-08-18"
+          reference: "docs/evidence/2026-08-18-hub-270-verification.md"
+      - id: b1-fleet-need-and-snapshot
+        text: >-
+          Un besoin métier flotte réel et borné (quels modèles la flotte peut employer
+          pour quelles missions) est exprimé en Policy Definition v1 et Model Snapshot
+          v1 sur les fournisseurs de content/governance/providers.yaml.
+        weight: 2
+        status: pending
+      - id: b2-verdict-biscuit-contract-draft
+        text: >-
+          Le contrat neuf reliant un verdict policy-core à l'émission du
+          capability_scope Biscuit d'un agent (K1) est en DRAFT et revu par rôles
+          séparés avant tout code ; le verdict informe l'émission, il ne devient jamais
+          une garde d'exécution (leçon TOOL-CALL-RISK).
+        weight: 2
+        status: pending
+      - id: b3-real-gate-evidence
+        text: >-
+          Une preuve d'exécution réelle est produite sur au moins une gate MP-P0 ou
+          MP-P1 du plan docs/apps/model-policy/phases.v1.json — le premier
+          enregistrement d'évidence réel du produit, qui aujourd'hui en affiche 0
+          partout. N'est pas accepté tant que les dettes 1, 3 et 4 de
+          docs/evidence/2026-08-18-hub-270-verification.md restent ouvertes sur le
+          mécanisme dont B3 dépend pour sa propre preuve.
+        weight: 3
+        status: pending
+  - id: managed-service-external
+    title: Phase C — service managé externe (MP-P0→P7, séquencée après la Phase B)
+    note: >-
+      Contenu conservé tel quel (docs/apps/model-policy/phases.v1.json) ; ne s'active
+      qu'après acceptation de la Phase B (fleet-dogfooding).
+    exit_criteria:
+      - id: mp-p0-p7-accepted
         text: Les phases du plan docs/apps/model-policy/phases.v1.json (qualification déterministe, puis assistance LLM) sont acceptées avec leurs preuves.
         weight: 4
         status: pending
