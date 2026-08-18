@@ -9,12 +9,12 @@ Pour les équipes qui veulent employer des modèles d'IA en respectant leur poli
 <!-- libre-ai:project-status:begin -->
 <!-- Section générée depuis project.v1.yaml — ne pas éditer à la main. -->
 
-- Situation actuelle : L'application Model Policy et le crate policy-core (frontière WIT vendorée, implémentation de référence policy-core-ref exposée à la constellation) sont greffés et verts ; le plan de livraison par phases (docs/apps/model-policy) voyage avec le produit, ses phases restent à exécuter.
+- Situation actuelle : L'application Model Policy et le crate policy-core (frontière WIT vendorée, implémentation de référence policy-core-ref exposée à la constellation) sont greffés et verts. Séquencement acté par arbitrage owner 2026-08-18 : la Phase B (dogfooding flotte) précède toute Phase C (service managé externe, plan MP-P0→P7 conservé tel quel). Le verdict K4 de l'issue hub #270 (libre-ai/libre-ai#270, non fermable — hub archivé) a été vérifié action par action contre le code actuel de check-product-phases.ts ; trois dettes restent ouvertes (digest requiredEvidenceLevel, décodage Markdown non fatal/non capé, absence de revue sécurité/vie privée du mécanisme), consignées dans docs/evidence/2026-08-18-hub-270-verification.md.
 - Maturité : usable
 - Exposition : spec-published
 - Confiance : medium
-- Preuves vérifiées le : 2026-07-30
-- Avancement : 20 % du périmètre actuellement déclaré
+- Preuves vérifiées le : 2026-08-18
+- Avancement : 16,7 % du périmètre actuellement déclaré
 
 <!-- libre-ai:project-status:end -->
 
