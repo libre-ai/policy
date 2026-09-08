@@ -27,6 +27,7 @@
     "check:bun": "bun run check:bun:runtime && bun node_modules/@libre-ai/governance/tools/quality/check-bun-manifests.ts",
     "check:toolchain": "bun run check:bun && bun node_modules/@libre-ai/governance/tools/quality/check-toolchain.ts",
     "check:wit": "bun run check:bun:runtime && bun scripts/check-vendored-wit.ts",
+    "check:wasm-conformance": "bun run check:bun:runtime && node tools/quality/build-policy-core-wasm.ts && cargo run --locked --example check_wasm_imports -- target/wasm32-unknown-unknown/release/policy_core.wasm && bun tools/quality/policy-core-wasm-conformance.ts",
     "check:app": "bun run check:bun:runtime && bun install --cwd packages/policy-core-ref && bun test --cwd packages/policy-core-ref && bun install --cwd apps/model-policy && bun test --cwd apps/model-policy",
     "check:secret-scan": "bun run check:bun:runtime && bun node_modules/@libre-ai/governance/tools/quality/check-secret-scan.ts",
     "check:personal-data": "bun run check:bun:runtime && bun node_modules/@libre-ai/governance/tools/quality/check-personal-data-boundary.ts",
