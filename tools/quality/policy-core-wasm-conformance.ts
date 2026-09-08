@@ -1,6 +1,7 @@
 // The exhaustive live conformance gate for the policy-core WASM câblage: it
 // instantiates the built component through the model-policy evaluation adapter and
-// replays every golden vector (contracts/fixtures/policy-core-v2/golden.json),
+// replays every golden vector (policy-core-v2/golden.json from the pinned
+// contracts-authority git-dep, the same file the native Rust conformance reads),
 // asserting the WASM path is byte-for-byte faithful to the normative SEMANTICS.md
 // the native Rust engine already satisfies. It guards the residual risk the
 // native conformance cannot see: a discrepancy introduced by the wasm32
@@ -15,7 +16,10 @@ import { createPolicyCoreEvaluator } from "../../apps/model-policy/src/evaluatio
 
 const repositoryRoot = resolve(import.meta.dir, "../..");
 const generatedDirectory = resolve(repositoryRoot, "target/policy-core-wasm/generated");
-const goldenPath = resolve(repositoryRoot, "contracts/fixtures/policy-core-v2/golden.json");
+const goldenPath = resolve(
+  repositoryRoot,
+  "node_modules/@libre-ai/contracts-authority/contracts/fixtures/policy-core-v2/golden.json",
+);
 
 interface GoldenCase {
   id: string;
