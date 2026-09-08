@@ -84,8 +84,11 @@ jobs:
         with:
           node-version: "24"
       - run: rustup target add wasm32-unknown-unknown
+      # dtolnay/rust-toolchain exports CARGO_INCREMENTAL=0 to the job; the build
+      # script refuses any external Rust build control by design (reproducible,
+      # capability-free artifact), so the variable is dropped for this step only.
       - name: policy-core WASM build and golden conformance (blocking)
-        run: bun run check:wasm-conformance
+        run: env -u CARGO_INCREMENTAL bun run check:wasm-conformance
 
   dependency-policy:
     name: Dependency policy
